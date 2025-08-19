@@ -10,22 +10,60 @@ This project is a Vite-powered React app backed by Firebase. It tracks progress 
 
 ## Firestore security rules
 
-Your Firestore instance must allow authenticated users to read and write only
-their own workspaces. Deploy rules similar to the following before running the
-app or the workspace query will fail with *Missing or insufficient permissions*:
+Your Firestore instance must restrict workspace access to members only. Deploy
+rules like the following before running the app or the workspace query will
+fail with *Missing or insufficient permissions*:
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /workspaces/{workspaceId} {
-      allow read, update, delete: if request.auth.uid == resource.data.ownerId;
-      allow create: if request.auth.uid != null &&
-                    request.resource.data.ownerId == request.auth.uid;
+
+    // Minimal profile index so invites by email work
+    match /profiles/{uid} {
+      allow read:  if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
     }
-    match /workspaces/{workspaceId}/{collection}/{doc} {
-      allow read, write: if request.auth.uid ==
-        get(/databases/{database}/documents/workspaces/{workspaceId}).data.ownerId;
+
+    // Helpers for workspace security
+    function wsDoc(wsId) {
+      return get(/databases/$(database)/documents/workspaces/$(wsId));
+    }
+    function isMember(wsId) {
+      return request.auth != null && wsDoc(wsId).data.members[request.auth.uid] != null;
+    }
+    function role(wsId) {
+      return wsDoc(wsId).data.members[request.auth.uid];
+    }
+    function canEdit(wsId) {
+      let r = role(wsId);
+      return r == "owner" || r == "editor";
+    }
+
+    // Workspaces root
+    match /workspaces/{wsId} {
+      // Allow creating a NEW workspace if the requester sets themselves as owner
+      allow create: if request.auth != null
+        && request.resource.data.members[request.auth.uid] == "owner"
+        && request.resource.data.memberIds.hasOnly([request.auth.uid]);
+
+      // Read for members only
+      allow read: if isMember(wsId);
+
+      // Update for owner/editor, delete for owner only
+      allow update: if canEdit(wsId);
+      allow delete: if request.auth != null && role(wsId) == "owner";
+    }
+
+    // Everything inside a workspace (progress/goals/people/etc)
+    match /workspaces/{wsId}/{document=**} {
+      allow read:  if isMember(wsId);
+      allow write: if canEdit(wsId);
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

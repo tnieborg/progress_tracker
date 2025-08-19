@@ -18,8 +18,7 @@ import {
 	onSnapshot,
 	serverTimestamp,
 	query,
-	orderBy,
-	where,
+        where,
 } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
 
@@ -339,7 +338,7 @@ export default function App() {
                 }
                 const q = query(
                 collection(db, "workspaces"),
-                where("ownerId", "==", user.uid)
+                where("memberIds", "array-contains", user.uid)
                 );
                 const unsub = onSnapshot(
                 q,
@@ -434,7 +433,6 @@ export default function App() {
                         name,
                         createdAt: serverTimestamp(),
                         createdBy: uid,
-                        ownerId: uid,
                         members: { [uid]: "owner" },
                         memberIds: [uid],
                         });
