@@ -424,23 +424,27 @@ export default function App() {
 			setSelectedWsId(tempId);
 
 			// Write a workspace that satisfies your rules
-			const d = await addDoc(wsRef, {
-			name,
-			createdAt: serverTimestamp(),
-			createdBy: uid,
-			members: { [uid]: "owner" },
-			memberIds: [uid],
-			});
+                        const d = await addDoc(wsRef, {
+                        name,
+                        createdAt: serverTimestamp(),
+                        createdBy: uid,
+                        ownerId: uid,
+                        members: { [uid]: "owner" },
+                        memberIds: [uid],
+                        });
 
-			// Switch the select to the real id
-			setSelectedWsId(d.id);
-			setBanner(`Created workspace “${name}”.`);
-			return d.id;
-		} catch (err) {
-			setBanner(`Create workspace failed: ${err.message}`);
-			return "";
-		}
-	}
+                        // Switch the select to the real id and replace temp entry
+                        setSelectedWsId(d.id);
+                        setWorkspaces((prev) => prev.map((w) => w.id === tempId ? { ...w, id: d.id } : w));
+                        setBanner(`Created workspace “${name}”.`);
+                        return d.id;
+                } catch (err) {
+                        // Remove the temporary entry on failure
+                        setWorkspaces((prev) => prev.filter((w) => w.id !== tempId));
+                        setBanner(`Create workspace failed: ${err.message}`);
+                        return "";
+                }
+        }
 
 
 	function resetLocal() {
