@@ -19,6 +19,7 @@ import {
   GoogleAuthProvider,
   signOut,
 } from "firebase/auth";
+import { firebaseConfig } from "./firebase-config";
 
 // ========== Palettes ==========
 const PALETTES = {
@@ -46,17 +47,6 @@ const PALETTES = {
     accent: "#00B4D8",
     accentSubtle: "#90E0EF",
   },
-};
-
-// ========== Firebase (fill in your config) ==========
-const firebaseConfig = {
-  apiKey: "AIzaSyDrdeptMf_Fpha4Ub9o3V8z-WSUnkg2lx4",
-  authDomain: "progress-tracker-375e6.firebaseapp.com",
-  projectId: "progress-tracker-375e6",
-  storageBucket: "progress-tracker-375e6.firebasestorage.app",
-  messagingSenderId: "295998607619",
-  appId: "1:295998607619:web:ac84869da625872424d936",
-  measurementId: "G-90D10NB9KE"
 };
 
 const fbApp = initializeApp(firebaseConfig);
@@ -175,20 +165,40 @@ function Header({ paletteKey, setPaletteKey }) {
 
 function AuthPanel({ user, paletteKey }) {
   const p = PALETTES[paletteKey];
+  const [error, setError] = useState("");
+  const handleSignIn = async () => {
+    try {
+      setError("");
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      console.error("sign-in failed", e);
+      setError("Sign in failed");
+    }
+  };
+  const handleSignOut = async () => {
+    try {
+      setError("");
+      await signOut(auth);
+    } catch (e) {
+      console.error("sign-out failed", e);
+      setError("Sign out failed");
+    }
+  };
   return (
     <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
       {user ? (
         <>
           <span style={{ opacity: 0.85 }}>Hi, {user.displayName || user.email}</span>
-          <Button palette={paletteKey} onClick={() => signOut(auth)} subtle>
+          <Button palette={paletteKey} onClick={handleSignOut} subtle>
             Sign out
           </Button>
         </>
       ) : (
-        <Button palette={paletteKey} onClick={() => signInWithPopup(auth, provider)}>
+        <Button palette={paletteKey} onClick={handleSignIn}>
           Sign in with Google
         </Button>
       )}
+      {error && <span style={{ color: p.accent }}>{error}</span>}
     </div>
   );
 }
