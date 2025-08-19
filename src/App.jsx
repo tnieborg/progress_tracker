@@ -339,7 +339,7 @@ export default function App() {
 		}
 		const q = query(
 		collection(db, "workspaces"),
-		where("ownerId", "==", user.uid),
+		where("memberIds", "array-contains", user.uid),
 		orderBy("createdAt", "asc")
 		);
 		const unsub = onSnapshot(q, (snap) => {
@@ -442,6 +442,17 @@ export default function App() {
 		}
 	}
 
+
+	async function updateWorkspaceMembers(id, members) {
+		try {
+			await updateDoc(doc(db, "workspaces", id), {
+				members,
+				memberIds: Object.keys(members),
+			});
+		} catch (err) {
+			setBanner(`Update members failed: ${err.message}`);
+		}
+	}
 
 	function resetLocal() {
 		setBanner("Local cache cleared.");
