@@ -42,6 +42,7 @@ const PALETTES = {
   },
 };
 
+
 // ========== Firebase ==========
 const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
@@ -151,6 +152,46 @@ function Header({ paletteKey, setPaletteKey }) {
           ))}
         </select>
       </div>
+    </div>
+  );
+}
+
+function AuthPanel({ user, paletteKey }) {
+  const p = PALETTES[paletteKey];
+  const [error, setError] = useState("");
+  const handleSignIn = async () => {
+    try {
+      setError("");
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      console.error("sign-in failed", e);
+      setError("Sign in failed");
+    }
+  };
+  const handleSignOut = async () => {
+    try {
+      setError("");
+      await signOut(auth);
+    } catch (e) {
+      console.error("sign-out failed", e);
+      setError("Sign out failed");
+    }
+  };
+  return (
+    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+      {user ? (
+        <>
+          <span style={{ opacity: 0.85 }}>Hi, {user.displayName || user.email}</span>
+          <Button palette={paletteKey} onClick={handleSignOut} subtle>
+            Sign out
+          </Button>
+        </>
+      ) : (
+        <Button palette={paletteKey} onClick={handleSignIn}>
+          Sign in with Google
+        </Button>
+      )}
+      {error && <span style={{ color: p.accent }}>{error}</span>}
     </div>
   );
 }
