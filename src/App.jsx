@@ -330,25 +330,31 @@ export default function App() {
 
 	const readOnly = !selectedWsId;
 
-	// load workspaces for the current user
-	useEffect(() => {
-		if (!user) {
-		setWorkspaces([]);
-		setSelectedWsId("");
-		return;
-		}
-		const q = query(
-		collection(db, "workspaces"),
-		where("ownerId", "==", user.uid),
-		orderBy("createdAt", "asc")
-		);
-		const unsub = onSnapshot(q, (snap) => {
-		const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-		setWorkspaces(list);
-		if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
-		});
-		return () => unsub();
-	}, [user]);
+        // load workspaces for the current user
+        useEffect(() => {
+                if (!user) {
+                setWorkspaces([]);
+                setSelectedWsId("");
+                return;
+                }
+                const q = query(
+                collection(db, "workspaces"),
+                where("ownerId", "==", user.uid)
+                );
+                const unsub = onSnapshot(
+                q,
+                (snap) => {
+                        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+                        setWorkspaces(list);
+                        if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
+                },
+                (err) => {
+                        console.error("failed to load workspaces", err);
+                        setBanner(`Failed to load workspaces: ${err.message}`);
+                }
+                );
+                return () => unsub();
+        }, [user, selectedWsId]);
 
 	// subscribe to subcollections for selected workspace
 	useEffect(() => {
