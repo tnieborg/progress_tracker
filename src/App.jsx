@@ -18,8 +18,7 @@ import {
 	onSnapshot,
 	serverTimestamp,
 	query,
-	orderBy,
-	where,
+        where,
 } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
 
@@ -57,6 +56,9 @@ const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
 const auth = getAuth(fbApp);
 const provider = new GoogleAuthProvider();
+
+// Recognized workspace roles used when querying membership
+const MEMBER_ROLES = ["owner", "editor", "viewer"];
 
 // ========== Utilities ==========
 function useDebouncedCallback(fn, delay = 600) {
@@ -424,23 +426,26 @@ export default function App() {
 			setSelectedWsId(tempId);
 
 			// Write a workspace that satisfies your rules
-			const d = await addDoc(wsRef, {
-			name,
-			createdAt: serverTimestamp(),
-			createdBy: uid,
-			members: { [uid]: "owner" },
-			memberIds: [uid],
-			});
+                        const d = await addDoc(wsRef, {
+                        name,
+                        createdAt: serverTimestamp(),
+                        createdBy: uid,
+                        members: { [uid]: "owner" },
+                        memberIds: [uid],
+                        });
 
-			// Switch the select to the real id
-			setSelectedWsId(d.id);
-			setBanner(`Created workspace “${name}”.`);
-			return d.id;
-		} catch (err) {
-			setBanner(`Create workspace failed: ${err.message}`);
-			return "";
-		}
-	}
+                        // Switch the select to the real id and replace temp entry
+                        setSelectedWsId(d.id);
+                        setWorkspaces((prev) => prev.map((w) => w.id === tempId ? { ...w, id: d.id } : w));
+                        setBanner(`Created workspace “${name}”.`);
+                        return d.id;
+                } catch (err) {
+                        // Remove the temporary entry on failure
+                        setWorkspaces((prev) => prev.filter((w) => w.id !== tempId));
+                        setBanner(`Create workspace failed: ${err.message}`);
+                        return "";
+                }
+        }
 
 
 	async function updateWorkspaceMembers(id, members) {
