@@ -12,13 +12,6 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
-} from "firebase/auth";
 import { firebaseConfig } from "./firebase-config";
 
 // ========== Palettes ==========
@@ -49,10 +42,10 @@ const PALETTES = {
   },
 };
 
+
+// ========== Firebase ==========
 const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
-const auth = getAuth(fbApp);
-const provider = new GoogleAuthProvider();
 
 // ========== Utilities ==========
 function useDebouncedCallback(fn, delay = 600) {
@@ -205,7 +198,6 @@ function AuthPanel({ user, paletteKey }) {
 
 function WorkspaceBar({
   paletteKey,
-  user,
   workspaces,
   selectedWsId,
   setSelectedWsId,
@@ -217,51 +209,45 @@ function WorkspaceBar({
   const [name, setName] = useState("");
   return (
     <Card palette={paletteKey} title="Workspaces" right={null}>
-      {user ? (
-        <>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 8, alignItems: "center" }}>
-            <select
-              value={selectedWsId || ""}
-              onChange={(e) => setSelectedWsId(e.target.value)}
-              style={{ background: "transparent", color: p.text, border: `1px solid ${p.accent}55`, borderRadius: 8, padding: "6px 8px" }}
-            >
-              {workspaces.length === 0 && (
-                <option value="" style={{ color: "#000" }}>No workspaces yet</option>
-              )}
-              {workspaces.map((w) => (
-                <option key={w.id} value={w.id} style={{ color: "#000" }}>
-                  {w.name || "Untitled"}
-                </option>
-              ))}
-            </select>
-            <Button palette={paletteKey} subtle onClick={resetLocal}>Reset local cache</Button>
-            <Button palette={paletteKey} onClick={testConnection}>Test connection</Button>
-          </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 8, alignItems: "center" }}>
+        <select
+          value={selectedWsId || ""}
+          onChange={(e) => setSelectedWsId(e.target.value)}
+          style={{ background: "transparent", color: p.text, border: `1px solid ${p.accent}55`, borderRadius: 8, padding: "6px 8px" }}
+        >
+          {workspaces.length === 0 && (
+            <option value="" style={{ color: "#000" }}>No workspaces yet</option>
+          )}
+          {workspaces.map((w) => (
+            <option key={w.id} value={w.id} style={{ color: "#000" }}>
+              {w.name || "Untitled"}
+            </option>
+          ))}
+        </select>
+        <Button palette={paletteKey} subtle onClick={resetLocal}>Reset local cache</Button>
+        <Button palette={paletteKey} onClick={testConnection}>Test connection</Button>
+      </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, marginTop: 10 }}>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="New workspace name"
-              style={{ background: "transparent", color: p.text, border: `1px solid ${p.accent}55`, borderRadius: 8, padding: "6px 8px" }}
-            />
-            <Button
-              palette={paletteKey}
-              onClick={async () => {
-                const n = name.trim();
-                if (!n) return;
-                const id = await createWorkspace(n);
-                if (id) setSelectedWsId(id);
-                setName("");
-              }}
-            >
-              Create
-            </Button>
-          </div>
-        </>
-      ) : (
-        <div style={{ opacity: 0.8 }}>Sign in to create and sync workspaces.</div>
-      )}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, marginTop: 10 }}>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="New workspace name"
+          style={{ background: "transparent", color: p.text, border: `1px solid ${p.accent}55`, borderRadius: 8, padding: "6px 8px" }}
+        />
+        <Button
+          palette={paletteKey}
+          onClick={async () => {
+            const n = name.trim();
+            if (!n) return;
+            const id = await createWorkspace(n);
+            if (id) setSelectedWsId(id);
+            setName("");
+          }}
+        >
+          Create
+        </Button>
+      </div>
     </Card>
   );
 }
@@ -271,7 +257,6 @@ export default function App() {
   const [paletteKey, setPaletteKey] = useState("royalViolet");
   const p = PALETTES[paletteKey];
 
-  const [user, setUser] = useState(null);
   const [banner, setBanner] = useState("");
 
   // workspaces
@@ -283,37 +268,26 @@ export default function App() {
   const [goals, setGoals] = useState([]);
   const [people, setPeople] = useState([]);
 
-  const readOnly = !user || !selectedWsId;
-
-  // Auth
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
-    return () => unsub();
-  }, []);
+  const readOnly = !selectedWsId;
 
   // load workspaces
   useEffect(() => {
-    if (!user) {
-      setWorkspaces([]);
-      setSelectedWsId("");
-      return;
-    }
-    const q = query(collection(db, "users", user.uid, "workspaces"), orderBy("createdAt", "asc"));
+    const q = query(collection(db, "workspaces"), orderBy("createdAt", "asc"));
     const unsub = onSnapshot(q, (snap) => {
       const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       setWorkspaces(list);
       if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
     });
     return () => unsub();
-  }, [user]);
+  }, []);
 
   // subscribe to subcollections for selected workspace
   useEffect(() => {
-    if (!user || !selectedWsId) {
+    if (!selectedWsId) {
       setProgress([]); setGoals([]); setPeople([]);
       return;
     }
-    const base = doc(db, "users", user.uid, "workspaces", selectedWsId);
+    const base = doc(db, "workspaces", selectedWsId);
 
     const unsub1 = onSnapshot(collection(base, "progress"), (snap) =>
       setProgress(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
@@ -326,12 +300,12 @@ export default function App() {
     );
 
     return () => { unsub1(); unsub2(); unsub3(); };
-  }, [user, selectedWsId]);
+  }, [selectedWsId]);
 
   // helpers
   const getColRef = (colName) => {
-    if (!user || !selectedWsId) return null;
-    return collection(db, "users", user.uid, "workspaces", selectedWsId, colName);
+    if (!selectedWsId) return null;
+    return collection(db, "workspaces", selectedWsId, colName);
   };
 
   async function addItem(colName, item) {
@@ -364,9 +338,8 @@ export default function App() {
 
   // Workspace operations
   async function createWorkspace(name) {
-    if (!user) { setBanner("Not signed in."); return ""; }
     try {
-      const wsRef = collection(db, "users", user.uid, "workspaces");
+      const wsRef = collection(db, "workspaces");
       const d = await addDoc(wsRef, { name, createdAt: serverTimestamp() });
       setBanner(`Created workspace “${name}”.`);
       return d.id;
@@ -388,10 +361,9 @@ export default function App() {
 
   // Test connection (permissions probe within selected workspace)
   async function testConnection() {
-    if (!user) { setBanner("Not signed in."); return; }
     if (!selectedWsId) { setBanner("No workspace selected."); return; }
     try {
-      const base = doc(db, "users", user.uid, "workspaces", selectedWsId);
+      const base = doc(db, "workspaces", selectedWsId);
       const pingCol = collection(base, "__ping");
       const added = await addDoc(pingCol, { t: Date.now() });
       await deleteDoc(doc(pingCol, added.id));
@@ -610,7 +582,6 @@ export default function App() {
     <div style={{ minHeight: "100vh", background: p.bg, color: p.text }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
         <Header paletteKey={paletteKey} setPaletteKey={setPaletteKey} />
-        <AuthPanel user={user} paletteKey={paletteKey} />
 
         {banner && (
           <div style={{ padding: 12, borderRadius: 10, border: `1px solid ${p.accent}44`, color: p.text, background: `${p.accent}11` }}>{banner}</div>
@@ -618,7 +589,6 @@ export default function App() {
 
         <WorkspaceBar
           paletteKey={paletteKey}
-          user={user}
           workspaces={workspaces}
           selectedWsId={selectedWsId}
           setSelectedWsId={setSelectedWsId}
