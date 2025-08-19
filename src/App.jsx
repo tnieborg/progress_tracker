@@ -397,9 +397,17 @@ export default function App() {
 
   // Workspace operations
   async function createWorkspace(name) {
+    if (!auth.currentUser) {
+      setBanner("Please sign in to create a workspace.");
+      return "";
+    }
     try {
       const wsRef = collection(db, "workspaces");
-      const d = await addDoc(wsRef, { name, createdAt: serverTimestamp() });
+      const d = await addDoc(wsRef, {
+        name,
+        owner: auth.currentUser.uid,
+        createdAt: serverTimestamp(),
+      });
       setBanner(`Created workspace “${name}”.`);
       return d.id;
     } catch (err) {
