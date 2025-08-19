@@ -1,6 +1,14 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { initializeApp } from "firebase/app";
 import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+} from "firebase/auth";
+import {
   getFirestore,
   collection,
   addDoc,
@@ -46,6 +54,8 @@ const PALETTES = {
 // ========== Firebase ==========
 const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
+const auth = getAuth(fbApp);
+const provider = new GoogleAuthProvider();
 
 // ========== Utilities ==========
 function useDebouncedCallback(fn, delay = 600) {
@@ -133,12 +143,13 @@ function AddRow({ type, onAdd, disabled, placeholder }) {
   );
 }
 
-function Header({ paletteKey, setPaletteKey }) {
+function Header({ paletteKey, setPaletteKey, user }) {
   const p = PALETTES[paletteKey];
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
       <h2 style={{ margin: 0, color: p.text }}>Progress Tracker</h2>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <AuthPanel user={user} paletteKey={paletteKey} />
         <label style={{ opacity: 0.8 }}>Theme</label>
         <select
           value={paletteKey}
@@ -159,12 +170,23 @@ function Header({ paletteKey, setPaletteKey }) {
 function AuthPanel({ user, paletteKey }) {
   const p = PALETTES[paletteKey];
   const [error, setError] = useState("");
-  const handleSignIn = async () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleGoogleSignIn = async () => {
     try {
       setError("");
       await signInWithPopup(auth, provider);
     } catch (e) {
       console.error("sign-in failed", e);
+      setError("Sign in failed");
+    }
+  };
+  const handleEmailSignIn = async () => {
+    try {
+      setError("");
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (e) {
+      console.error("email sign-in failed", e);
       setError("Sign in failed");
     }
   };
@@ -187,9 +209,40 @@ function AuthPanel({ user, paletteKey }) {
           </Button>
         </>
       ) : (
-        <Button palette={paletteKey} onClick={handleSignIn}>
-          Sign in with Google
-        </Button>
+        <>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{
+              background: "transparent",
+              color: p.text,
+              border: `1px solid ${p.accent}55`,
+              borderRadius: 8,
+              padding: "6px 8px",
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{
+              background: "transparent",
+              color: p.text,
+              border: `1px solid ${p.accent}55`,
+              borderRadius: 8,
+              padding: "6px 8px",
+            }}
+          />
+          <Button palette={paletteKey} onClick={handleEmailSignIn}>
+            Login
+          </Button>
+          <Button palette={paletteKey} onClick={handleGoogleSignIn}>
+            Google
+          </Button>
+        </>
       )}
       {error && <span style={{ color: p.accent }}>{error}</span>}
     </div>
@@ -256,6 +309,12 @@ function WorkspaceBar({
 export default function App() {
   const [paletteKey, setPaletteKey] = useState("royalViolet");
   const p = PALETTES[paletteKey];
+
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, setUser);
+    return () => unsub();
+  }, []);
 
   const [banner, setBanner] = useState("");
 
@@ -581,7 +640,7 @@ export default function App() {
   return (
     <div style={{ minHeight: "100vh", background: p.bg, color: p.text }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
-        <Header paletteKey={paletteKey} setPaletteKey={setPaletteKey} />
+        <Header paletteKey={paletteKey} setPaletteKey={setPaletteKey} user={user} />
 
         {banner && (
           <div style={{ padding: 12, borderRadius: 10, border: `1px solid ${p.accent}44`, color: p.text, background: `${p.accent}11` }}>{banner}</div>
