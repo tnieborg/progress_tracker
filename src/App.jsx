@@ -19,6 +19,7 @@ import {
   serverTimestamp,
   query,
   orderBy,
+  where,
 } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
 
@@ -329,16 +330,25 @@ export default function App() {
 
   const readOnly = !selectedWsId;
 
-  // load workspaces
+  // load workspaces for the current user
   useEffect(() => {
-    const q = query(collection(db, "workspaces"), orderBy("createdAt", "asc"));
+    if (!user) {
+      setWorkspaces([]);
+      setSelectedWsId("");
+      return;
+    }
+    const q = query(
+      collection(db, "workspaces"),
+      where("ownerId", "==", user.uid),
+      orderBy("createdAt", "asc")
+    );
     const unsub = onSnapshot(q, (snap) => {
       const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       setWorkspaces(list);
       if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
     });
     return () => unsub();
-  }, []);
+  }, [user]);
 
   // subscribe to subcollections for selected workspace
   useEffect(() => {
@@ -405,7 +415,7 @@ export default function App() {
       const wsRef = collection(db, "workspaces");
       const d = await addDoc(wsRef, {
         name,
-        owner: auth.currentUser.uid,
+        ownerId: auth.currentUser.uid,
         createdAt: serverTimestamp(),
       });
       setBanner(`Created workspace “${name}”.`);
