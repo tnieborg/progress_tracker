@@ -13,13 +13,13 @@ import {
 	collection,
 	addDoc,
 	updateDoc,
-	deleteDoc,
-	doc,
-	onSnapshot,
-	serverTimestamp,
-	query,
-	orderBy,
-	where,
+        deleteDoc,
+        doc,
+        onSnapshot,
+        serverTimestamp,
+        query,
+        where,
+        orderBy,
 } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
 
@@ -57,6 +57,9 @@ const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
 const auth = getAuth(fbApp);
 const provider = new GoogleAuthProvider();
+
+// Recognized workspace roles used when querying membership
+const MEMBER_ROLES = ["owner", "editor", "viewer"];
 
 // ========== Utilities ==========
 function useDebouncedCallback(fn, delay = 600) {
@@ -330,25 +333,31 @@ export default function App() {
 
 	const readOnly = !selectedWsId;
 
-	// load workspaces for the current user
-	useEffect(() => {
-		if (!user) {
-		setWorkspaces([]);
-		setSelectedWsId("");
-		return;
-		}
-		const q = query(
-		collection(db, "workspaces"),
-		where("ownerId", "==", user.uid),
-		orderBy("createdAt", "asc")
-		);
-		const unsub = onSnapshot(q, (snap) => {
-		const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-		setWorkspaces(list);
-		if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
-		});
-		return () => unsub();
-	}, [user]);
+        // load workspaces for the current user
+        useEffect(() => {
+                if (!user) {
+                setWorkspaces([]);
+                setSelectedWsId("");
+                return;
+                }
+                const q = query(
+                collection(db, "workspaces"),
+                where(`members.${user.uid}`, "in", MEMBER_ROLES)
+                );
+                const unsub = onSnapshot(
+                q,
+                (snap) => {
+                        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+                        setWorkspaces(list);
+                        if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
+                },
+                (err) => {
+                        console.error("failed to load workspaces", err);
+                        setBanner(`Failed to load workspaces: ${err.message}`);
+                }
+                );
+                return () => unsub();
+        }, [user, selectedWsId]);
 
 	// subscribe to subcollections for selected workspace
 	useEffect(() => {
@@ -424,23 +433,26 @@ export default function App() {
 			setSelectedWsId(tempId);
 
 			// Write a workspace that satisfies your rules
-			const d = await addDoc(wsRef, {
-			name,
-			createdAt: serverTimestamp(),
-			createdBy: uid,
-			members: { [uid]: "owner" },
-			memberIds: [uid],
-			});
+                        const d = await addDoc(wsRef, {
+                        name,
+                        createdAt: serverTimestamp(),
+                        createdBy: uid,
+                        members: { [uid]: "owner" },
+                        memberIds: [uid],
+                        });
 
-			// Switch the select to the real id
-			setSelectedWsId(d.id);
-			setBanner(`Created workspace “${name}”.`);
-			return d.id;
-		} catch (err) {
-			setBanner(`Create workspace failed: ${err.message}`);
-			return "";
-		}
-	}
+                        // Switch the select to the real id and replace temp entry
+                        setSelectedWsId(d.id);
+                        setWorkspaces((prev) => prev.map((w) => w.id === tempId ? { ...w, id: d.id } : w));
+                        setBanner(`Created workspace “${name}”.`);
+                        return d.id;
+                } catch (err) {
+                        // Remove the temporary entry on failure
+                        setWorkspaces((prev) => prev.filter((w) => w.id !== tempId));
+                        setBanner(`Create workspace failed: ${err.message}`);
+                        return "";
+                }
+        }
 
 
 	function resetLocal() {
