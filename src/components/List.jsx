@@ -1,5 +1,6 @@
 import React from "react";
-import { PALETTES, Card, AddRow } from "./ui";
+import { Card, AddRow } from "./ui";
+import "./List.css";
 
 export default function List({
   title,
@@ -18,14 +19,12 @@ export default function List({
   commitSlider,
   onAddGoal,
 }) {
-  const p = PALETTES[paletteKey];
   return (
     <Card
-      palette={paletteKey}
       title={title}
-      right={readOnly ? (<span style={{ color: p.text, opacity: 0.6 }}>Read only</span>) : null}
+      right={readOnly ? (<span className="muted">Read only</span>) : null}
     >
-      {!data.length && <div style={{ opacity: 0.7 }}>No items</div>}
+      {!data.length && <div className="list-empty">No items</div>}
 
       {data.map((item) => {
         const isProgress = type === "progress";
@@ -44,14 +43,7 @@ export default function List({
         return (
           <div
             key={item.id}
-            style={{
-              display: "grid",
-              gridTemplateColumns: isPeople ? "1fr minmax(120px,160px) auto" : "1fr minmax(180px,1fr) auto",
-              gap: 12,
-              alignItems: "center",
-              padding: "10px 0",
-              borderBottom: `1px dashed ${p.accent}18`,
-            }}
+            className={`list-row ${type}`}
           >
             {isProgress && (
               <>
@@ -70,12 +62,12 @@ export default function List({
                   onBlur={() => commitSlider("progress", item, liveValue)}
                   disabled={readOnly || (autoFromGoals && linkedIds.length > 0)}
                 />
-                <div style={{ textAlign: "right", color: p.accent }}>
+                <div className="list-value">
                   {autoFromGoals && linkedIds.length > 0 ? `${derived}% (auto)` : `${shownValue}%`}
                 </div>
 
-                <div style={{ gridColumn: "1 / -1", display: "flex", gap: 12, alignItems: "center", opacity: 0.9 }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div className="list-row-controls">
+                  <label className="list-label-checkbox">
                     <input
                       type="checkbox"
                       checked={autoFromGoals}
@@ -85,12 +77,12 @@ export default function List({
                     Auto from goals
                   </label>
                   <details>
-                    <summary style={{ cursor: "pointer" }}>Link goals ({linkedIds.length})</summary>
-                    <div style={{ marginTop: 8, display: "grid", gap: 6 }}>
+                    <summary className="link-goals-summary">Link goals ({linkedIds.length})</summary>
+                    <div className="link-goals-list">
                       {goals.map((g) => {
                         const checked = linkedIds.includes(g.id);
                         return (
-                          <label key={g.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <label key={g.id} className="link-goals-item">
                             <input
                               type="checkbox"
                               checked={checked}
@@ -136,7 +128,7 @@ export default function List({
                   onBlur={() => commitSlider("goals", item, liveValue)}
                   disabled={readOnly}
                 />
-                <div style={{ textAlign: "right", color: p.accent }}>{shownValue}%</div>
+                <div className="list-value">{shownValue}%</div>
               </>
             )}
 
@@ -144,25 +136,19 @@ export default function List({
               <>
                 <span>{item.name}</span>
                 <select
+                  className="status-select"
                   value={item.status || "watching"}
                   onChange={(e) => onUpdate(item.id, { status: e.target.value })}
                   disabled={readOnly}
-                  style={{
-                    background: "transparent",
-                    color: p.accent,
-                    border: `1px solid ${p.accent}55`,
-                    borderRadius: 8,
-                    padding: "4px 6px",
-                  }}
                 >
-                  <option value="watching" style={{ color: "#000" }}>watching</option>
-                  <option value="ongoing" style={{ color: "#000" }}>ongoing</option>
-                  <option value="completed" style={{ color: "#000" }}>completed</option>
+                  <option value="watching">watching</option>
+                  <option value="ongoing">ongoing</option>
+                  <option value="completed">completed</option>
                 </select>
                 {!readOnly && (
                   <button
                     onClick={() => onDelete(item.id)}
-                    style={{ color: "#ff4d4f", background: "transparent", border: "1px solid #ff4d4f55", padding: "4px 8px", borderRadius: 8 }}
+                    className="delete-button"
                   >
                     Delete
                   </button>

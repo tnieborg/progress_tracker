@@ -1,22 +1,22 @@
 import React, { useState } from "react";
 import { signInWithPopup, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { PALETTES, Button } from "./ui";
+import "./Header.css";
 
 export default function Header({ paletteKey, setPaletteKey, user, auth, provider }) {
-  const p = PALETTES[paletteKey];
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <h2 style={{ margin: 0, color: p.text }}>Progress Tracker</h2>
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <AuthPanel user={user} paletteKey={paletteKey} auth={auth} provider={provider} />
-        <label style={{ opacity: 0.8 }}>Theme</label>
+    <div className="header">
+      <h2 className="header-title">Progress Tracker</h2>
+      <div className="header-controls">
+        <AuthPanel user={user} auth={auth} provider={provider} />
+        <label className="theme-label">Theme</label>
         <select
+          className="theme-select"
           value={paletteKey}
           onChange={(e) => setPaletteKey(e.target.value)}
-          style={{ background: "transparent", color: p.text, border: `1px solid ${p.accent}55`, borderRadius: 8, padding: "4px 6px" }}
         >
           {Object.entries(PALETTES).map(([k, v]) => (
-            <option key={k} value={k} style={{ color: "#000" }}>
+            <option key={k} value={k}>
               {v.name}
             </option>
           ))}
@@ -26,8 +26,7 @@ export default function Header({ paletteKey, setPaletteKey, user, auth, provider
   );
 }
 
-function AuthPanel({ user, paletteKey, auth, provider }) {
-  const p = PALETTES[paletteKey];
+function AuthPanel({ user, auth, provider }) {
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,51 +62,35 @@ function AuthPanel({ user, paletteKey, auth, provider }) {
   };
 
   return (
-    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+    <div className="auth-panel">
       {user ? (
         <>
-          <span style={{ opacity: 0.85 }}>Hi, {user.displayName || user.email}</span>
-          <Button palette={paletteKey} onClick={handleSignOut} subtle>
+          <span className="greeting">Hi, {user.displayName || user.email}</span>
+          <Button onClick={handleSignOut} subtle>
             Sign out
           </Button>
         </>
       ) : (
         <>
           <input
+            className="auth-input"
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{
-              background: "transparent",
-              color: p.text,
-              border: `1px solid ${p.accent}55`,
-              borderRadius: 8,
-              padding: "6px 8px",
-            }}
           />
           <input
+            className="auth-input"
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{
-              background: "transparent",
-              color: p.text,
-              border: `1px solid ${p.accent}55`,
-              borderRadius: 8,
-              padding: "6px 8px",
-            }}
           />
-          <Button palette={paletteKey} onClick={handleEmailSignIn}>
-            Login
-          </Button>
-          <Button palette={paletteKey} onClick={handleGoogleSignIn}>
-            Google
-          </Button>
+          <Button onClick={handleEmailSignIn}>Login</Button>
+          <Button onClick={handleGoogleSignIn}>Google</Button>
         </>
       )}
-      {error && <span style={{ color: p.accent }}>{error}</span>}
+      {error && <span className="auth-error">{error}</span>}
     </div>
   );
 }

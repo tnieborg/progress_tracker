@@ -20,6 +20,7 @@ import ProgressOverview from "./components/ProgressOverview";
 import GoalsOverview from "./components/GoalsOverview";
 import PeopleOverview from "./components/PeopleOverview";
 import { PALETTES, Card, Button } from "./components/ui";
+import "./App.css";
 
 
 // ========== Firebase ==========
@@ -42,65 +43,61 @@ function useDebouncedCallback(fn, delay = 600) {
 }
 
 function WorkspaceBar({
-        paletteKey,
         workspaces,
         selectedWsId,
-	setSelectedWsId,
-	createWorkspace,
-	resetLocal,
-	testConnection,
-	}) {
-	const p = PALETTES[paletteKey];
-	const [name, setName] = useState("");
-	return (
-		<Card palette={paletteKey} title="Workspaces" right={null}>
-		<div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 8, alignItems: "center" }}>
-			<select
-			value={selectedWsId || ""}
-			onChange={(e) => setSelectedWsId(e.target.value)}
-			style={{ background: "transparent", color: p.text, border: `1px solid ${p.accent}55`, borderRadius: 8, padding: "6px 8px" }}
-			>
-			{workspaces.length === 0 && (
-				<option value="" style={{ color: "#000" }}>No workspaces yet</option>
-			)}
-			{workspaces.map((w) => (
-				<option key={w.id} value={w.id} style={{ color: "#000" }}>
-				{w.name || "Untitled"}
-				</option>
-			))}
-			</select>
-			<Button palette={paletteKey} subtle onClick={resetLocal}>Reset local cache</Button>
-			<Button palette={paletteKey} onClick={testConnection}>Test connection</Button>
-		</div>
+        setSelectedWsId,
+        createWorkspace,
+        resetLocal,
+        testConnection,
+        }) {
+        const [name, setName] = useState("");
+        return (
+                <Card title="Workspaces" right={null}>
+                <div className="workspace-bar">
+                        <select
+                        className="workspace-bar-select"
+                        value={selectedWsId || ""}
+                        onChange={(e) => setSelectedWsId(e.target.value)}
+                        >
+                        {workspaces.length === 0 && (
+                                <option value="">No workspaces yet</option>
+                        )}
+                        {workspaces.map((w) => (
+                                <option key={w.id} value={w.id}>
+                                {w.name || "Untitled"}
+                                </option>
+                        ))}
+                        </select>
+                        <Button subtle onClick={resetLocal}>Reset local cache</Button>
+                        <Button onClick={testConnection}>Test connection</Button>
+                </div>
 
-		<div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, marginTop: 10 }}>
-			<input
-			value={name}
-			onChange={(e) => setName(e.target.value)}
-			placeholder="New workspace name"
-			style={{ background: "transparent", color: p.text, border: `1px solid ${p.accent}55`, borderRadius: 8, padding: "6px 8px" }}
-			/>
-			<Button
-			palette={paletteKey}
-			onClick={async () => {
-				const n = name.trim();
-				if (!n) return;
-				const id = await createWorkspace(n);
-				if (id) setSelectedWsId(id);
-				setName("");
-			}}
-			>
-			Create
-			</Button>
-		</div>
-		</Card>
-	);
+                <div className="workspace-create">
+                        <input
+                        className="workspace-bar-input"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="New workspace name"
+                        />
+                        <Button
+                        onClick={async () => {
+                                const n = name.trim();
+                                if (!n) return;
+                                const id = await createWorkspace(n);
+                                if (id) setSelectedWsId(id);
+                                setName("");
+                        }}
+                        >
+                        Create
+                        </Button>
+                </div>
+                </Card>
+        );
 }
 
 // ========== Main App ==========
 export default function App() {
-	const [paletteKey, setPaletteKey] = useState("royalViolet");
-	const p = PALETTES[paletteKey];
+        const [paletteKey, setPaletteKey] = useState("royalViolet");
 
 	const [user, setUser] = useState(null);
 	useEffect(() => {
@@ -338,26 +335,25 @@ export default function App() {
 		setDraggingFlag(type, id, false);
 	}, [pending, debouncedPersist, clearPendingValue, setDraggingFlag]);
 
-	return (
-		<div style={{ minHeight: "100vh", background: p.bg, color: p.text }}>
-		<div style={{ maxWidth: 1200, margin: "0 auto", padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
+        return (
+                <div className={`app palette-${paletteKey}`}>
+                <div className="container">
                         <Header paletteKey={paletteKey} setPaletteKey={setPaletteKey} user={user} auth={auth} provider={provider} />
 
-			{banner && (
-			<div style={{ padding: 12, borderRadius: 10, border: `1px solid ${p.accent}44`, color: p.text, background: `${p.accent}11` }}>{banner}</div>
-			)}
+                        {banner && (
+                        <div className="banner">{banner}</div>
+                        )}
 
-			<WorkspaceBar
-			paletteKey={paletteKey}
-			workspaces={workspaces}
-			selectedWsId={selectedWsId}
-			setSelectedWsId={setSelectedWsId}
-			createWorkspace={createWorkspace}
-			resetLocal={resetLocal}
-			testConnection={testConnection}
-			/>
+                        <WorkspaceBar
+                        workspaces={workspaces}
+                        selectedWsId={selectedWsId}
+                        setSelectedWsId={setSelectedWsId}
+                        createWorkspace={createWorkspace}
+                        resetLocal={resetLocal}
+                        testConnection={testConnection}
+                        />
 
-                        <div role="gridwrap" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 24 }}>
+                        <div className="grid-wrap">
                         <ProgressOverview
                                 paletteKey={paletteKey}
                                 data={progress}
@@ -399,19 +395,10 @@ export default function App() {
                         />
                         </div>
 
-			<style>{`
-			@media (max-width: 1100px) {
-				div[role="gridwrap"] { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
-			}
-			@media (max-width: 760px) {
-				div[role="gridwrap"] { grid-template-columns: 1fr !important; }
-			}
-			`}</style>
-
-			<div style={{ opacity: 0.7 }}>
-			<small>Palette: <span style={{ color: p.accent }}>{PALETTES[paletteKey].name}</span></small>
-			</div>
-		</div>
-		</div>
-	);
+                        <div className="palette-info">
+                        <small>Palette: <span>{PALETTES[paletteKey].name}</span></small>
+                        </div>
+                </div>
+                </div>
+        );
 }
