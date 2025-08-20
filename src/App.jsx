@@ -9,16 +9,17 @@ import {
 	GoogleAuthProvider,
 } from "firebase/auth";
 import {
-	getFirestore,
-	collection,
-	addDoc,
-	updateDoc,
-	deleteDoc,
-	doc,
-	onSnapshot,
-	serverTimestamp,
-	query,
+        getFirestore,
+        collection,
+        addDoc,
+        updateDoc,
+        deleteDoc,
+        doc,
+        onSnapshot,
+        serverTimestamp,
+        query,
         where,
+        orderBy,
 } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
 
@@ -57,8 +58,6 @@ const db = getFirestore(fbApp);
 const auth = getAuth(fbApp);
 const provider = new GoogleAuthProvider();
 
-// Recognized workspace roles used when querying membership
-const MEMBER_ROLES = ["owner", "editor", "viewer"];
 
 // ========== Utilities ==========
 function useDebouncedCallback(fn, delay = 600) {
@@ -339,16 +338,24 @@ export default function App() {
 		setSelectedWsId("");
 		return;
 		}
-		const q = query(
-		collection(db, "workspaces"),
-		where("memberIds", "array-contains", user.uid),
-		orderBy("createdAt", "asc")
-		);
-		const unsub = onSnapshot(q, (snap) => {
-		const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-		setWorkspaces(list);
-		if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
-		});
+               const q = query(
+               collection(db, "workspaces"),
+               where("memberIds", "array-contains", user.uid)
+               // NOTE: removed orderBy("createdAt") for now to avoid composite index error.
+               // After this works, add it back and follow the console link to create the index.
+               );
+               const unsub = onSnapshot(
+               q,
+               (snap) => {
+                       const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+                       setWorkspaces(list);
+                       if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
+               },
+               (err) => {
+                       console.error("workspace load failed", err);
+                       setBanner(`Load workspaces failed: ${err.message}`);
+               }
+               );
 		return () => unsub();
 	}, [user]);
 
@@ -413,46 +420,48 @@ export default function App() {
 			setBanner("Please sign in to create a workspace.");
 			return "";
 		}
+		// prepare temp id outside try/catch so we can clean it up on failure
+		const tempId = "temp-" + Math.random().toString(36).slice(2);
 		try {
 			const uid = auth.currentUser.uid;
 			const wsRef = collection(db, "workspaces");
 
 			// Optimistically add a temporary option so the <select> isn't blank
-			const tempId = "temp-" + Math.random().toString(36).slice(2);
 			setWorkspaces((prev) => [
-			...prev,
-			{ id: tempId, name, members: { [uid]: "owner" }, memberIds: [uid], createdAt: new Date() }
+				...prev,
+				{ id: tempId, name, members: { [uid]: "owner" }, memberIds: [uid], createdAt: new Date() }
 			]);
 			setSelectedWsId(tempId);
 
 			// Write a workspace that satisfies your rules
-                        const d = await addDoc(wsRef, {
-                        name,
-                        createdAt: serverTimestamp(),
-                        createdBy: uid,
-                        members: { [uid]: "owner" },
-                        memberIds: [uid],
-                        });
+			const d = await addDoc(collection(db, "workspaces"), {
+				name,
+				createdAt: serverTimestamp(),
+				createdBy: uid,
+				members: { [uid]: "owner" },
+				memberIds: [uid],
+			});
 
-                        // Switch the select to the real id and replace temp entry
-                        setSelectedWsId(d.id);
-                        setWorkspaces((prev) => prev.map((w) => w.id === tempId ? { ...w, id: d.id } : w));
-                        setBanner(`Created workspace “${name}”.`);
-                        return d.id;
-                } catch (err) {
-                        // Remove the temporary entry on failure
-                        setWorkspaces((prev) => prev.filter((w) => w.id !== tempId));
-                        setBanner(`Create workspace failed: ${err.message}`);
-                        return "";
-                }
-        }
+
+			// Switch the select to the real id and replace temp entry
+			setSelectedWsId(d.id);
+			setWorkspaces((prev) => prev.map((w) => (w.id === tempId ? { ...w, id: d.id } : w)));
+			setBanner(`Created workspace “${name}”.`);
+			return d.id;
+		} catch (err) {
+			// Remove the temporary entry on failure
+			setWorkspaces((prev) => prev.filter((w) => w.id !== tempId));
+			setBanner(`Create workspace failed: ${err.message}`);
+			return "";
+		}
+	}
 
 
 	async function updateWorkspaceMembers(id, members) {
 		try {
 			await updateDoc(doc(db, "workspaces", id), {
-				members,
-				memberIds: Object.keys(members),
+			members,
+			memberIds: Object.keys(members),
 			});
 		} catch (err) {
 			setBanner(`Update members failed: ${err.message}`);
