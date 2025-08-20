@@ -69,9 +69,9 @@ service cloud.firestore {
 }
 ```
 
-Each workspace document should store a `members` map of user roles and a
-parallel `memberIds` array. The client queries `members.{uid}` to load
-workspaces for the signed-in user.
+Each workspace document stores a `members` map of user roles and a parallel
+`memberIds` array. The client queries the `memberIds` array to load workspaces
+for the signed-in user.
 
 ## Development
 

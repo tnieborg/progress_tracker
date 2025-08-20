@@ -58,8 +58,6 @@ const db = getFirestore(fbApp);
 const auth = getAuth(fbApp);
 const provider = new GoogleAuthProvider();
 
-// Recognized workspace roles used when querying membership
-const MEMBER_ROLES = ["owner", "editor", "viewer"];
 
 // ========== Utilities ==========
 function useDebouncedCallback(fn, delay = 600) {
@@ -342,7 +340,7 @@ export default function App() {
 		}
                const q = query(
                collection(db, "workspaces"),
-               where(`members.${user.uid}`, "in", MEMBER_ROLES),
+               where("memberIds", "array-contains", user.uid),
                orderBy("createdAt", "asc")
                );
                const unsub = onSnapshot(
