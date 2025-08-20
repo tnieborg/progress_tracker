@@ -9,16 +9,17 @@ import {
 	GoogleAuthProvider,
 } from "firebase/auth";
 import {
-	getFirestore,
-	collection,
-	addDoc,
-	updateDoc,
-	deleteDoc,
-	doc,
-	onSnapshot,
-	serverTimestamp,
-	query,
+        getFirestore,
+        collection,
+        addDoc,
+        updateDoc,
+        deleteDoc,
+        doc,
+        onSnapshot,
+        serverTimestamp,
+        query,
         where,
+        orderBy,
 } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
 
