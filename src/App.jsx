@@ -340,16 +340,23 @@ export default function App() {
 		setSelectedWsId("");
 		return;
 		}
-		const q = query(
-		collection(db, "workspaces"),
-		where("memberIds", "array-contains", user.uid),
-		orderBy("createdAt", "asc")
-		);
-		const unsub = onSnapshot(q, (snap) => {
-		const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-		setWorkspaces(list);
-		if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
-		});
+               const q = query(
+               collection(db, "workspaces"),
+               where(`members.${user.uid}`, "in", MEMBER_ROLES),
+               orderBy("createdAt", "asc")
+               );
+               const unsub = onSnapshot(
+               q,
+               (snap) => {
+                       const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+                       setWorkspaces(list);
+                       if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
+               },
+               (err) => {
+                       console.error("workspace load failed", err);
+                       setBanner(`Load workspaces failed: ${err.message}`);
+               }
+               );
 		return () => unsub();
 	}, [user]);
 
