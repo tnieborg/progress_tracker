@@ -1,6 +1,6 @@
 import React from "react";
-import { Card, AddRow } from "./ui";
-import "./List.css";
+import { Card, AddRow } from "../ui/ui";
+import "./list.css";
 
 export default function List({
   title,

@@ -15,11 +15,11 @@ import {
         orderBy,
 } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
-import Header from "./components/Header";
-import ProgressOverview from "./components/ProgressOverview";
-import GoalsOverview from "./components/GoalsOverview";
-import PeopleOverview from "./components/PeopleOverview";
-import { PALETTES, Card, Button } from "./components/ui";
+import Header from "./components/header/header";
+import ProgressOverview from "./components/progress-overview/progress-overview";
+import GoalsOverview from "./components/goals-overview/goals-overview";
+import PeopleOverview from "./components/people-overview/people-overview";
+import { PALETTES, Card, Button } from "./components/ui/ui";
 import "./App.css";
 
 

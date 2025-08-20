@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { signInWithPopup, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { PALETTES, Button } from "./ui";
-import "./Header.css";
+import { PALETTES, Button } from "../ui/ui";
+import "./header.css";
 
 export default function Header({ paletteKey, setPaletteKey, user, auth, provider }) {
   return (
