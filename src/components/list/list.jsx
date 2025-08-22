@@ -12,178 +12,123 @@ export default function List({
         paletteKey,
         readOnly,
         computeDerivedPercent = () => ({ percent: 0, count: 0 }),
-        pending,
-        setPendingValue,
-        setDraggingFlag,
-        commitSlider,
         onSelectItem,
         selectedId,
 }) {
-	return (
-		<Card
-			title={title}
-			right={readOnly ? <span className="muted">Read only</span> : null}
-		>
-			{!data.length && <div className="list-empty">No items</div>}
+        return (
+                <Card
+                        title={title}
+                        right={readOnly ? <span className="muted">Read only</span> : null}
+                >
+                        {!data.length && <div className="list-empty">No items</div>}
 
-			{data.map((item) => {
-				const isProjects = type === "projects";
-				const isGoals = type === "goals";
-				const isPeople = type === "people";
+                        {data.map((item) => {
+                                const isProjects = type === "projects";
+                                const isGoals = type === "goals";
+                                const isPeople = type === "people";
 
-                                const colKey = isProjects ? "projects" : isGoals ? "goals" : null;
-                                const autoFromGoals = isProjects ? (item.auto ?? false) : false;
-                                const { percent: derived, count: goalCount } = isProjects
+                                const { percent: derived } = isProjects
                                         ? computeDerivedPercent(item.id)
-                                        : { percent: 0, count: 0 };
-                                const baseLive = isProjects
-                                        ? (item.percent ?? 0)
-                                        : isGoals
-                                                ? (item.percent ?? 0)
-                                                : 0;
-                                const liveValue =
-                                        isProjects && autoFromGoals && goalCount ? derived : baseLive;
-                                const pendingValue = colKey ? pending[colKey][item.id] : undefined;
-                                const shownValue =
-                                        pendingValue !== undefined ? pendingValue : liveValue;
+                                        : { percent: 0 };
 
                                 return (
                                         <div
                                                 key={item.id}
                                                 className={`list-row ${type} ${
-                                                        selectedId === item.id ? "selected" : ""
-                                                }`}
+                                                        isGoals && item.status ? `goal-${item.status}` : ""
+                                                } ${selectedId === item.id ? "selected" : ""}`}
                                                 onClick={() => onSelectItem && onSelectItem(item.id)}
                                         >
                                                 {isProjects && (
                                                         <>
                                                                 <span>{item.name}</span>
-                                                                <input
-									type="range"
-									min={0}
-									max={100}
-									step={1}
-									value={shownValue}
-									onChange={(e) =>
-										setPendingValue("projects", item.id, Number(e.target.value))
-									}
-									onMouseDown={() => setDraggingFlag("projects", item.id, true)}
-									onTouchStart={() =>
-										setDraggingFlag("projects", item.id, true)
-									}
-									onMouseUp={() => commitSlider("projects", item, liveValue)}
-									onTouchEnd={() => commitSlider("projects", item, liveValue)}
-									onBlur={() => commitSlider("projects", item, liveValue)}
-                                                                        disabled={readOnly || (autoFromGoals && goalCount > 0)}
-                                                                />
                                                                 <div className="list-actions">
-                                                                        <div className="list-value">
-                                                                                {autoFromGoals && goalCount > 0
-                                                                                        ? `${derived}% (auto)`
-                                                                                        : `${shownValue}%`}
-                                                                        </div>
+                                                                        <div className="list-value">{derived}%</div>
                                                                         {!readOnly && (
                                                                                 <button
                                                                                         onClick={() => onDelete(item.id)}
                                                                                         className="delete-button"
-										>
-											Delete
-										</button>
-									)}
-								</div>
-
-                                                                <div className="list-row-controls">
-                                                                        <label className="list-label-checkbox">
-                                                                                <input
-                                                                                        type="checkbox"
-                                                                                        checked={autoFromGoals}
-                                                                                        onChange={(e) =>
-                                                                                                onUpdate(item.id, { auto: e.target.checked })
-                                                                                        }
-                                                                                        disabled={readOnly}
-                                                                                />
-                                                                                Auto from goals
-                                                                        </label>
+                                                                                >
+                                                                                        Delete
+                                                                                </button>
+                                                                        )}
                                                                 </div>
                                                         </>
                                                 )}
 
-						{isGoals && (
-							<>
-								<span>{item.title}</span>
-								<input
-									type="range"
-									min={0}
-									max={100}
-									step={1}
-									value={shownValue}
-									onChange={(e) =>
-										setPendingValue("goals", item.id, Number(e.target.value))
-									}
-									onMouseDown={() => setDraggingFlag("goals", item.id, true)}
-									onTouchStart={() => setDraggingFlag("goals", item.id, true)}
-									onMouseUp={() => commitSlider("goals", item, liveValue)}
-									onTouchEnd={() => commitSlider("goals", item, liveValue)}
-									onBlur={() => commitSlider("goals", item, liveValue)}
-									disabled={readOnly}
-								/>
-								<div className="list-actions">
-									<div className="list-value">{shownValue}%</div>
-									{!readOnly && (
-										<button
-											onClick={() => onDelete(item.id)}
-											className="delete-button"
-										>
-											Delete
-										</button>
-									)}
-								</div>
-							</>
-						)}
+                                                {isGoals && (
+                                                        <>
+                                                                <span>{item.title}</span>
+                                                                <select
+                                                                        className="status-select"
+                                                                        value={item.status || "todo"}
+                                                                        onChange={(e) =>
+                                                                                onUpdate(item.id, {
+                                                                                        status: e.target.value,
+                                                                                })
+                                                                        }
+                                                                        disabled={readOnly}
+                                                                >
+                                                                        <option value="todo">To do</option>
+                                                                        <option value="doing">Doing</option>
+                                                                        <option value="done">Done</option>
+                                                                </select>
+                                                                {!readOnly && (
+                                                                        <button
+                                                                                onClick={() => onDelete(item.id)}
+                                                                                className="delete-button"
+                                                                        >
+                                                                                Delete
+                                                                        </button>
+                                                                )}
+                                                        </>
+                                                )}
 
-						{isPeople && (
-							<>
-								<span>{item.name}</span>
-								<select
-									className="status-select"
-									value={item.status || "watching"}
-									onChange={(e) =>
-										onUpdate(item.id, { status: e.target.value })
-									}
-									disabled={readOnly}
-								>
-									<option value="watching">watching</option>
-									<option value="ongoing">ongoing</option>
-									<option value="completed">completed</option>
-								</select>
-								{!readOnly && (
-									<button
-										onClick={() => onDelete(item.id)}
-										className="delete-button"
-									>
-										Delete
-									</button>
-								)}
-							</>
-						)}
-					</div>
-				);
-			})}
+                                                {isPeople && (
+                                                        <>
+                                                                <span>{item.name}</span>
+                                                                <select
+                                                                        className="status-select"
+                                                                        value={item.status || "watching"}
+                                                                        onChange={(e) =>
+                                                                                onUpdate(item.id, {
+                                                                                        status: e.target.value,
+                                                                                })
+                                                                        }
+                                                                        disabled={readOnly}
+                                                                >
+                                                                        <option value="watching">watching</option>
+                                                                        <option value="ongoing">ongoing</option>
+                                                                        <option value="completed">completed</option>
+                                                                </select>
+                                                                {!readOnly && (
+                                                                        <button
+                                                                                onClick={() => onDelete(item.id)}
+                                                                                className="delete-button"
+                                                                        >
+                                                                                Delete
+                                                                        </button>
+                                                                )}
+                                                        </>
+                                                )}
+                                        </div>
+                                );
+                        })}
 
-			{!readOnly && (
-				<AddRow
-					type={type}
-					placeholder={
-						type === "people"
-							? "Add a person/project"
-							: type === "goals"
-								? "Add a goal"
-								: "Add a project"
-					}
-					disabled={readOnly}
-					onAdd={onAdd}
-				/>
-			)}
-		</Card>
-	);
+                        {!readOnly && (
+                                <AddRow
+                                        type={type}
+                                        placeholder={
+                                                type === "people"
+                                                        ? "Add a person/project"
+                                                        : type === "goals"
+                                                                ? "Add a goal"
+                                                                : "Add a project"
+                                        }
+                                        disabled={readOnly}
+                                        onAdd={onAdd}
+                                />
+                        )}
+                </Card>
+        );
 }

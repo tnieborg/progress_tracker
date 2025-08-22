@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
         collection,
@@ -14,22 +14,6 @@ import ProjectsOverview from "./components/projects-overview/projects-overview";
 import PeopleOverview from "./components/people-overview/people-overview";
 import List from "./components/list/list";
 import { PALETTES, Card } from "./components/ui/ui";
-
-function useDebouncedCallback(fn, delay = 600) {
-        const fnRef = useRef(fn);
-        const timer = useRef(null);
-        useEffect(() => {
-                fnRef.current = fn;
-        }, [fn]);
-        useEffect(() => () => timer.current && clearTimeout(timer.current), []);
-        return useCallback(
-                (...args) => {
-                        if (timer.current) clearTimeout(timer.current);
-                        timer.current = setTimeout(() => fnRef.current(...args), delay);
-                },
-                [delay],
-        );
-}
 
 export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) {
         const { id: wsId } = useParams();
@@ -174,65 +158,26 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                 }
         }
 
-        const debouncedPersist = useDebouncedCallback((col, id, patch) => {
-                updateItem(col, id, patch);
-        }, 600);
-
-        const [pending, setPending] = useState({ projects: {}, goals: {} });
-        const [dragging, setDragging] = useState({ projects: {}, goals: {} });
-
-        const setPendingValue = useCallback((col, id, value) => {
-                setPending((p) => ({ ...p, [col]: { ...p[col], [id]: value } }));
-        }, []);
-
-        const clearPendingValue = useCallback((col, id) => {
-                setPending((p) => {
-                        const copy = { ...p[col] };
-                        delete copy[id];
-                        return { ...p, [col]: copy };
-                });
-        }, []);
-
-        const setDraggingFlag = useCallback((col, id, val) => {
-                setDragging((d) => ({ ...d, [col]: { ...d[col], [id]: val } }));
-        }, []);
-
         function computeDerivedPercent(projectId) {
-                const arr = projectGoals[projectId]?.map((g) => g.percent ?? 0) || [];
+                const arr =
+                        projectGoals[projectId]?.map((g) => {
+                                if (g.status === "done") return 100;
+                                if (g.status === "doing") return 50;
+                                return 0;
+                        }) || [];
                 if (!arr.length) return { percent: 0, count: 0 };
                 const sum = arr.reduce((a, b) => a + b, 0);
                 return { percent: Math.round(sum / arr.length), count: arr.length };
         }
 
-        const commitSlider = useCallback(
-                (type, item, liveValue) => {
-                        const id = item.id;
-                        const pendingValue = pending[type]?.[id];
-                        const finalValue = pendingValue ?? liveValue ?? 0;
-                        if (type === "projects") {
-                                debouncedPersist("projects", id, { percent: Number(finalValue) });
+        useEffect(() => {
+                projects.forEach((p) => {
+                        const { percent } = computeDerivedPercent(p.id);
+                        if (p.percent !== percent) {
+                                updateItem("projects", p.id, { percent });
                         }
-                        clearPendingValue(type, id);
-                        setDraggingFlag(type, id, false);
-                },
-                [pending, debouncedPersist, clearPendingValue, setDraggingFlag],
-        );
-
-        const debouncedGoalPersist = useDebouncedCallback((projectId, id, patch) => {
-                updateGoal(projectId, id, patch);
-        }, 600);
-
-        const commitGoalSlider = useCallback(
-                (projectId, item, liveValue) => {
-                        const id = item.id;
-                        const pendingValue = pending.goals?.[id];
-                        const finalValue = pendingValue ?? liveValue ?? 0;
-                        debouncedGoalPersist(projectId, id, { percent: Number(finalValue) });
-                        clearPendingValue("goals", id);
-                        setDraggingFlag("goals", id, false);
-                },
-                [pending, debouncedGoalPersist, clearPendingValue, setDraggingFlag],
-        );
+                });
+        }, [projects, projectGoals]);
 
         return (
                 <>
@@ -245,10 +190,6 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                         onDelete={(id) => deleteItem("projects", id)}
                                         readOnly={readOnly}
                                         computeDerivedPercent={computeDerivedPercent}
-                                        pending={pending}
-                                        setPendingValue={setPendingValue}
-                                        setDraggingFlag={setDraggingFlag}
-                                        commitSlider={commitSlider}
                                         selectedId={selectedProjectId}
                                         onSelectItem={(id) =>
                                                 setSelectedProjectId((prev) =>
@@ -266,12 +207,6 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                                 onUpdate={(id, patch) => updateGoal(selectedProjectId, id, patch)}
                                                 onDelete={(id) => deleteGoal(selectedProjectId, id)}
                                                 readOnly={readOnly}
-                                                pending={pending}
-                                                setPendingValue={setPendingValue}
-                                                setDraggingFlag={setDraggingFlag}
-                                                commitSlider={(type, item, value) =>
-                                                        commitGoalSlider(selectedProjectId, item, value)
-                                                }
                                         />
                                 ) : (
                                         <Card title="Goals">
@@ -286,10 +221,6 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                         onUpdate={(id, patch) => updateItem("people", id, patch)}
                                         onDelete={(id) => deleteItem("people", id)}
                                         readOnly={readOnly}
-                                        pending={pending}
-                                        setPendingValue={setPendingValue}
-                                        setDraggingFlag={setDraggingFlag}
-                                        commitSlider={commitSlider}
                                 />
                         </div>
 
