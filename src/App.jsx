@@ -161,11 +161,16 @@ export default function App() {
         async function deleteWorkspace(id) {
                 try {
                         const wsRef = doc(db, "workspaces", id);
-                        const subcols = ["projects", "goals", "people"];
-                        for (const c of subcols) {
-                                const snap = await getDocs(collection(wsRef, c));
-                                await Promise.all(snap.docs.map((d) => deleteDoc(d.ref)));
-                        }
+                        const projectSnap = await getDocs(collection(wsRef, "projects"));
+                        await Promise.all(
+                                projectSnap.docs.map(async (p) => {
+                                        const goalsSnap = await getDocs(collection(p.ref, "goals"));
+                                        await Promise.all(goalsSnap.docs.map((g) => deleteDoc(g.ref)));
+                                        await deleteDoc(p.ref);
+                                }),
+                        );
+                        const peopleSnap = await getDocs(collection(wsRef, "people"));
+                        await Promise.all(peopleSnap.docs.map((d) => deleteDoc(d.ref)));
                         await deleteDoc(wsRef);
                         if (currentWsId === id) {
                                 const remaining = workspaces.find((w) => w.id !== id);

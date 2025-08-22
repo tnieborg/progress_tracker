@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import {
         collection,
@@ -11,9 +11,9 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 import ProjectsOverview from "./components/projects-overview/projects-overview";
-import GoalsOverview from "./components/goals-overview/goals-overview";
 import PeopleOverview from "./components/people-overview/people-overview";
-import { PALETTES } from "./components/ui/ui";
+import List from "./components/list/list";
+import { PALETTES, Card } from "./components/ui/ui";
 
 function useDebouncedCallback(fn, delay = 600) {
         const fnRef = useRef(fn);
@@ -34,14 +34,15 @@ function useDebouncedCallback(fn, delay = 600) {
 export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) {
         const { id: wsId } = useParams();
         const [projects, setProjects] = useState([]);
-        const [goals, setGoals] = useState([]);
         const [people, setPeople] = useState([]);
+        const [projectGoals, setProjectGoals] = useState({});
+        const [selectedProjectId, setSelectedProjectId] = useState("");
 
         useEffect(() => {
                 if (!wsId) {
                         setProjects([]);
-                        setGoals([]);
                         setPeople([]);
+                        setProjectGoals({});
                         return;
                 }
                 const base = doc(db, "workspaces", wsId);
@@ -49,28 +50,43 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                         const data = snap.data();
                         if (data?.paletteKey) setPaletteKey(data.paletteKey);
                 });
-                const unsub1 = onSnapshot(collection(base, "projects"), (snap) =>
+                const unsubProjects = onSnapshot(collection(base, "projects"), (snap) =>
                         setProjects(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
                 );
-                const unsub2 = onSnapshot(collection(base, "goals"), (snap) =>
-                        setGoals(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
-                );
-                const unsub3 = onSnapshot(collection(base, "people"), (snap) =>
+                const unsubPeople = onSnapshot(collection(base, "people"), (snap) =>
                         setPeople(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
                 );
                 return () => {
                         unsubWs();
-                        unsub1();
-                        unsub2();
-                        unsub3();
+                        unsubProjects();
+                        unsubPeople();
                 };
         }, [wsId, setPaletteKey]);
+
+        useEffect(() => {
+                if (!wsId) return;
+                const base = doc(db, "workspaces", wsId);
+                const unsubs = projects.map((p) =>
+                        onSnapshot(collection(base, "projects", p.id, "goals"), (snap) => {
+                                setProjectGoals((prev) => ({
+                                        ...prev,
+                                        [p.id]: snap.docs.map((d) => ({ id: d.id, ...d.data() })),
+                                }));
+                        }),
+                );
+                return () => unsubs.forEach((u) => u());
+        }, [wsId, projects]);
 
         const readOnly = !wsId;
 
         const getColRef = (colName) => {
                 if (!wsId) return null;
                 return collection(db, "workspaces", wsId, colName);
+        };
+
+        const getGoalsRef = (projectId) => {
+                if (!wsId || !projectId) return null;
+                return collection(db, "workspaces", wsId, "projects", projectId, "goals");
         };
 
         async function addItem(colName, item) {
@@ -114,10 +130,44 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
         }
 
         async function addGoalToProject(projectId, goal) {
-                const id = await addItem("goals", goal);
-                if (!id) return;
-                const current = projects.find((p) => p.id === projectId)?.goalIds || [];
-                updateItem("projects", projectId, { goalIds: [...current, id] });
+                const ref = getGoalsRef(projectId);
+                if (!ref) {
+                        setBanner("No project selected.");
+                        return "";
+                }
+                try {
+                        const d = await addDoc(ref, { ...goal, createdAt: serverTimestamp() });
+                        return d.id;
+                } catch (err) {
+                        setBanner(`Add goal failed: ${err.message}`);
+                        return "";
+                }
+        }
+
+        async function updateGoal(projectId, id, patch) {
+                const ref = getGoalsRef(projectId);
+                if (!ref) {
+                        setBanner("No project selected.");
+                        return;
+                }
+                try {
+                        await updateDoc(doc(ref, id), patch);
+                } catch (err) {
+                        setBanner(`Update goal failed: ${err.message}`);
+                }
+        }
+
+        async function deleteGoal(projectId, id) {
+                const ref = getGoalsRef(projectId);
+                if (!ref) {
+                        setBanner("No project selected.");
+                        return;
+                }
+                try {
+                        await deleteDoc(doc(ref, id));
+                } catch (err) {
+                        setBanner(`Delete goal failed: ${err.message}`);
+                }
         }
 
         const debouncedPersist = useDebouncedCallback((col, id, patch) => {
@@ -143,33 +193,41 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                 setDragging((d) => ({ ...d, [col]: { ...d[col], [id]: val } }));
         }, []);
 
-        const goalsById = useMemo(() => {
-                const m = Object.create(null);
-                for (const g of goals) m[g.id] = g;
-                return m;
-        }, [goals]);
-
-        function computeDerivedPercent(goalIds = []) {
-                const arr = goalIds.map((id) => goalsById[id]?.percent ?? 0);
-                if (!arr.length) return 0;
+        function computeDerivedPercent(projectId) {
+                const arr = projectGoals[projectId]?.map((g) => g.percent ?? 0) || [];
+                if (!arr.length) return { percent: 0, count: 0 };
                 const sum = arr.reduce((a, b) => a + b, 0);
-                return Math.round(sum / arr.length);
+                return { percent: Math.round(sum / arr.length), count: arr.length };
         }
 
         const commitSlider = useCallback(
                 (type, item, liveValue) => {
-                        const col = type;
                         const id = item.id;
                         const pendingValue = pending[type]?.[id];
                         const finalValue = pendingValue ?? liveValue ?? 0;
-                        if (type === "projects")
+                        if (type === "projects") {
                                 debouncedPersist("projects", id, { percent: Number(finalValue) });
-                        if (type === "goals")
-                                debouncedPersist("goals", id, { percent: Number(finalValue) });
+                        }
                         clearPendingValue(type, id);
                         setDraggingFlag(type, id, false);
                 },
                 [pending, debouncedPersist, clearPendingValue, setDraggingFlag],
+        );
+
+        const debouncedGoalPersist = useDebouncedCallback((projectId, id, patch) => {
+                updateGoal(projectId, id, patch);
+        }, 600);
+
+        const commitGoalSlider = useCallback(
+                (projectId, item, liveValue) => {
+                        const id = item.id;
+                        const pendingValue = pending.goals?.[id];
+                        const finalValue = pendingValue ?? liveValue ?? 0;
+                        debouncedGoalPersist(projectId, id, { percent: Number(finalValue) });
+                        clearPendingValue("goals", id);
+                        setDraggingFlag("goals", id, false);
+                },
+                [pending, debouncedGoalPersist, clearPendingValue, setDraggingFlag],
         );
 
         return (
@@ -178,7 +236,6 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                 <ProjectsOverview
                                         paletteKey={paletteKey}
                                         data={projects}
-                                        goals={goals}
                                         onAdd={(item) => addItem("projects", item)}
                                         onUpdate={(id, patch) => updateItem("projects", id, patch)}
                                         onDelete={(id) => deleteItem("projects", id)}
@@ -188,20 +245,36 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                         setPendingValue={setPendingValue}
                                         setDraggingFlag={setDraggingFlag}
                                         commitSlider={commitSlider}
-                                        onAddGoal={addGoalToProject}
+                                        selectedId={selectedProjectId}
+                                        onSelectItem={(id) =>
+                                                setSelectedProjectId((prev) =>
+                                                        prev === id ? "" : id,
+                                                )
+                                        }
                                 />
-                                <GoalsOverview
-                                        paletteKey={paletteKey}
-                                        data={goals}
-                                        onAdd={(item) => addItem("goals", item)}
-                                        onUpdate={(id, patch) => updateItem("goals", id, patch)}
-                                        onDelete={(id) => deleteItem("goals", id)}
-                                        readOnly={readOnly}
-                                        pending={pending}
-                                        setPendingValue={setPendingValue}
-                                        setDraggingFlag={setDraggingFlag}
-                                        commitSlider={commitSlider}
-                                />
+
+                                {selectedProjectId ? (
+                                        <List
+                                                title="Goals"
+                                                type="goals"
+                                                data={projectGoals[selectedProjectId] || []}
+                                                onAdd={(item) => addGoalToProject(selectedProjectId, item)}
+                                                onUpdate={(id, patch) => updateGoal(selectedProjectId, id, patch)}
+                                                onDelete={(id) => deleteGoal(selectedProjectId, id)}
+                                                readOnly={readOnly}
+                                                pending={pending}
+                                                setPendingValue={setPendingValue}
+                                                setDraggingFlag={setDraggingFlag}
+                                                commitSlider={(type, item, value) =>
+                                                        commitGoalSlider(selectedProjectId, item, value)
+                                                }
+                                        />
+                                ) : (
+                                        <Card title="Goals">
+                                                <div className="list-empty">Select a project to view goals</div>
+                                        </Card>
+                                )}
+
                                 <PeopleOverview
                                         paletteKey={paletteKey}
                                         data={people}

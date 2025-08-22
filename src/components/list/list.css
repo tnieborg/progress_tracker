@@ -3,11 +3,16 @@
 }
 
 .list-row {
-	display: grid;
-	gap: 12px;
-	align-items: center;
-	padding: 10px 0;
-	border-bottom: 1px dashed var(--accent);
+        display: grid;
+        gap: 12px;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--accent);
+}
+
+.list-row.selected {
+        background: var(--accent-subtle);
+        color: #fff;
 }
 
 .list-row.projects,
@@ -43,22 +48,6 @@
 	display: flex;
 	align-items: center;
 	gap: 6px;
-}
-
-.link-goals-summary {
-	cursor: pointer;
-}
-
-.link-goals-list {
-	margin-top: 8px;
-	display: grid;
-	gap: 6px;
-}
-
-.link-goals-item {
-	display: flex;
-	align-items: center;
-	gap: 8px;
 }
 
 .status-select {
