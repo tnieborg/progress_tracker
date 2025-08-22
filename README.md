@@ -19,49 +19,42 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Minimal profile index so invites by email work
     match /profiles/{uid} {
       allow read:  if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == uid;
     }
 
-    // Helpers for workspace security
-    function wsDoc(wsId) {
-      return get(/databases/$(database)/documents/workspaces/$(wsId));
-    }
-    function isMember(wsId) {
-      return request.auth != null && wsDoc(wsId).data.members[request.auth.uid] != null;
-    }
-    function role(wsId) {
-      return wsDoc(wsId).data.members[request.auth.uid];
-    }
-    function canEdit(wsId) {
-      let r = role(wsId);
-      return r == "owner" || r == "editor";
-    }
-
-    // Workspaces root
+    // --- Workspaces (top-level) ---
     match /workspaces/{wsId} {
-      // Allow creating a NEW workspace if the requester sets themselves as owner
+      // Create: requester sets themselves as owner and sole member initially
       allow create: if request.auth != null
         && request.resource.data.members[request.auth.uid] == "owner"
-        && request.resource.data.memberIds.hasOnly([request.auth.uid]);
+        && request.resource.data.memberIds == [request.auth.uid];
 
-      // Read for members only
-      allow read: if isMember(wsId);
+      // READ: use memberIds for query-safe collection reads
+      allow read: if request.auth != null
+        && request.auth.uid in resource.data.memberIds;
 
-      // Update for owner/editor, delete for owner only
-      allow update: if canEdit(wsId);
-      allow delete: if request.auth != null && role(wsId) == "owner";
+      // UPDATE/DELETE can still use the members map
+      allow update: if request.auth != null
+        && (resource.data.members[request.auth.uid] == "owner"
+            || resource.data.members[request.auth.uid] == "editor");
+
+      allow delete: if request.auth != null
+        && resource.data.members[request.auth.uid] == "owner";
     }
 
-    // Everything inside a workspace (progress/goals/people/etc)
+    // --- Subcollections under a workspace ---
     match /workspaces/{wsId}/{document=**} {
-      allow read:  if isMember(wsId);
-      allow write: if canEdit(wsId);
+      function parentRole() {
+        return get(/databases/$(database)/documents/workspaces/$(wsId))
+               .data.members[request.auth.uid];
+      }
+      allow read:  if request.auth != null && parentRole() != null;
+      allow write: if request.auth != null
+                    && (parentRole() == "owner" || parentRole() == "editor");
     }
 
-    // Deny everything else
     match /{document=**} {
       allow read, write: if false;
     }
