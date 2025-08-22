@@ -113,7 +113,9 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                 try {
                         await updateDoc(doc(ref, id), patch);
                 } catch (err) {
-                        setBanner(`Update failed: ${err.message}`);
+                        if (err.code !== "not-found") {
+                                setBanner(`Update failed: ${err.message}`);
+                        }
                 }
         }
         async function deleteItem(colName, id) {
@@ -153,7 +155,9 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                 try {
                         await updateDoc(doc(ref, id), patch);
                 } catch (err) {
-                        setBanner(`Update goal failed: ${err.message}`);
+                        if (err.code !== "not-found") {
+                                setBanner(`Update goal failed: ${err.message}`);
+                        }
                 }
         }
 
