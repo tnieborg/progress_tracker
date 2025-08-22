@@ -27,16 +27,16 @@ export default function List({
       {!data.length && <div className="list-empty">No items</div>}
 
       {data.map((item) => {
-        const isProgress = type === "progress";
+        const isProjects = type === "projects";
         const isGoals = type === "goals";
         const isPeople = type === "people";
 
-        const colKey = isProgress ? "progress" : isGoals ? "goals" : null;
-        const linkedIds = isProgress ? (item.goalIds || []) : [];
-        const autoFromGoals = isProgress ? (item.auto ?? false) : false;
-        const derived = isProgress ? computeDerivedPercent(linkedIds) : 0;
-        const baseLive = isProgress ? (item.value ?? 0) : isGoals ? (item.percent ?? 0) : 0;
-        const liveValue = isProgress && autoFromGoals && linkedIds.length ? derived : baseLive;
+        const colKey = isProjects ? "projects" : isGoals ? "goals" : null;
+        const linkedIds = isProjects ? (item.goalIds || []) : [];
+        const autoFromGoals = isProjects ? (item.auto ?? false) : false;
+        const derived = isProjects ? computeDerivedPercent(linkedIds) : 0;
+        const baseLive = isProjects ? (item.percent ?? 0) : isGoals ? (item.percent ?? 0) : 0;
+        const liveValue = isProjects && autoFromGoals && linkedIds.length ? derived : baseLive;
         const pendingValue = colKey ? pending[colKey][item.id] : undefined;
         const shownValue = pendingValue !== undefined ? pendingValue : liveValue;
 
@@ -45,21 +45,21 @@ export default function List({
             key={item.id}
             className={`list-row ${type}`}
           >
-            {isProgress && (
+            {isProjects && (
               <>
-                <span>{item.label}</span>
+                <span>{item.name}</span>
                 <input
                   type="range"
                   min={0}
                   max={100}
                   step={1}
                   value={shownValue}
-                  onChange={(e) => setPendingValue("progress", item.id, Number(e.target.value))}
-                  onMouseDown={() => setDraggingFlag("progress", item.id, true)}
-                  onTouchStart={() => setDraggingFlag("progress", item.id, true)}
-                  onMouseUp={() => commitSlider("progress", item, liveValue)}
-                  onTouchEnd={() => commitSlider("progress", item, liveValue)}
-                  onBlur={() => commitSlider("progress", item, liveValue)}
+                  onChange={(e) => setPendingValue("projects", item.id, Number(e.target.value))}
+                  onMouseDown={() => setDraggingFlag("projects", item.id, true)}
+                  onTouchStart={() => setDraggingFlag("projects", item.id, true)}
+                  onMouseUp={() => commitSlider("projects", item, liveValue)}
+                  onTouchEnd={() => commitSlider("projects", item, liveValue)}
+                  onBlur={() => commitSlider("projects", item, liveValue)}
                   disabled={readOnly || (autoFromGoals && linkedIds.length > 0)}
                 />
                 <div className="list-value">
@@ -162,7 +162,7 @@ export default function List({
       {!readOnly && (
         <AddRow
           type={type}
-          placeholder={type === "people" ? "Add a person/project" : type === "goals" ? "Add a goal" : "Add a progress item"}
+          placeholder={type === "people" ? "Add a person/project" : type === "goals" ? "Add a goal" : "Add a project"}
           disabled={readOnly}
           onAdd={onAdd}
         />

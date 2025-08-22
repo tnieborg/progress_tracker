@@ -1,11 +1,11 @@
 {
   "short_name": "Tracker",
-  "name": "Progress Tracker",
+  "name": "Project Tracker",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#1B1B2F",
   "theme_color": "#9D4EDD",
-  "description": "Track progress, goals, and projects across devices.",
+  "description": "Track projects, goals, and people across devices.",
   "icons": [
     {
       "src": "/icons/icon-192.png",
