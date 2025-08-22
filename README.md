@@ -1,6 +1,6 @@
-# Progress Tracker
+# Project Tracker
 
-This project is a Vite-powered React app backed by Firebase. It tracks progress in multiple workspaces and supports Google authentication.
+This project is a Vite-powered React app backed by Firebase. It tracks projects in multiple workspaces and supports Google authentication.
 
 ## Firebase configuration
 

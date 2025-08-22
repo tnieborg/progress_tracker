@@ -10,7 +10,7 @@
   border-bottom: 1px dashed var(--accent);
 }
 
-.list-row.progress,
+.list-row.projects,
 .list-row.goals {
   grid-template-columns: 1fr minmax(180px, 1fr) auto;
 }

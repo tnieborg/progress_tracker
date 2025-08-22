@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
 import Header from "./components/header/header";
-import ProgressOverview from "./components/progress-overview/progress-overview";
+import ProjectsOverview from "./components/projects-overview/projects-overview";
 import GoalsOverview from "./components/goals-overview/goals-overview";
 import PeopleOverview from "./components/people-overview/people-overview";
 import { PALETTES, Card, Button } from "./components/ui/ui";
@@ -112,7 +112,7 @@ export default function App() {
 	const [selectedWsId, setSelectedWsId] = useState("");
 
 	// collections
-	const [progress, setProgress] = useState([]);
+        const [projects, setProjects] = useState([]);
 	const [goals, setGoals] = useState([]);
 	const [people, setPeople] = useState([]);
 
@@ -149,14 +149,14 @@ export default function App() {
 	// subscribe to subcollections for selected workspace
 	useEffect(() => {
 		if (!selectedWsId) {
-		setProgress([]); setGoals([]); setPeople([]);
+                setProjects([]); setGoals([]); setPeople([]);
 		return;
 		}
 		const base = doc(db, "workspaces", selectedWsId);
 
-		const unsub1 = onSnapshot(collection(base, "progress"), (snap) =>
-		setProgress(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
-		);
+                const unsub1 = onSnapshot(collection(base, "projects"), (snap) =>
+                setProjects(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+                );
 		const unsub2 = onSnapshot(collection(base, "goals"), (snap) =>
 		setGoals(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
 		);
@@ -203,11 +203,11 @@ export default function App() {
                 }
         }
 
-        async function addGoalToProgress(progressId, goal) {
+        async function addGoalToProject(projectId, goal) {
                 const id = await addItem("goals", goal);
                 if (!id) return;
-                const current = progress.find((p) => p.id === progressId)?.goalIds || [];
-                updateItem("progress", progressId, { goalIds: [...current, id] });
+                const current = projects.find((p) => p.id === projectId)?.goalIds || [];
+                updateItem("projects", projectId, { goalIds: [...current, id] });
         }
 
 	// Workspace operations
@@ -293,8 +293,8 @@ export default function App() {
 		updateItem(col, id, patch);
 	}, 600);
 
-	const [pending, setPending] = useState({ progress: {}, goals: {} });
-	const [dragging, setDragging] = useState({ progress: {}, goals: {} });
+        const [pending, setPending] = useState({ projects: {}, goals: {} });
+        const [dragging, setDragging] = useState({ projects: {}, goals: {} });
 
 	const setPendingValue = useCallback((col, id, value) => {
 		setPending((p) => ({ ...p, [col]: { ...p[col], [id]: value } }));
@@ -310,7 +310,7 @@ export default function App() {
 		setDragging((d) => ({ ...d, [col]: { ...d[col], [id]: val } }));
 	}, []);
 
-	// Build a goals index for derived progress
+        // Build a goals index for derived project percent
 	const goalsById = useMemo(() => {
 		const m = Object.create(null);
 		for (const g of goals) m[g.id] = g;
@@ -324,16 +324,16 @@ export default function App() {
 		return Math.round(sum / arr.length);
 	}
 
-	const commitSlider = useCallback((type, item, liveValue) => {
-		const col = type;
-		const id = item.id;
-		const pendingValue = pending[type]?.[id];
-		const finalValue = pendingValue ?? liveValue ?? 0;
-		if (type === "progress") debouncedPersist("progress", id, { value: Number(finalValue) });
-		if (type === "goals") debouncedPersist("goals", id, { percent: Number(finalValue) });
-		clearPendingValue(type, id);
-		setDraggingFlag(type, id, false);
-	}, [pending, debouncedPersist, clearPendingValue, setDraggingFlag]);
+        const commitSlider = useCallback((type, item, liveValue) => {
+                const col = type;
+                const id = item.id;
+                const pendingValue = pending[type]?.[id];
+                const finalValue = pendingValue ?? liveValue ?? 0;
+                if (type === "projects") debouncedPersist("projects", id, { percent: Number(finalValue) });
+                if (type === "goals") debouncedPersist("goals", id, { percent: Number(finalValue) });
+                clearPendingValue(type, id);
+                setDraggingFlag(type, id, false);
+        }, [pending, debouncedPersist, clearPendingValue, setDraggingFlag]);
 
         return (
                 <div className={`app palette-${paletteKey}`}>
@@ -354,20 +354,20 @@ export default function App() {
                         />
 
                         <div className="grid-wrap">
-                        <ProgressOverview
+                        <ProjectsOverview
                                 paletteKey={paletteKey}
-                                data={progress}
+                                data={projects}
                                 goals={goals}
-                                onAdd={(item) => addItem("progress", item)}
-                                onUpdate={(id, patch) => updateItem("progress", id, patch)}
-                                onDelete={(id) => deleteItem("progress", id)}
+                                onAdd={(item) => addItem("projects", item)}
+                                onUpdate={(id, patch) => updateItem("projects", id, patch)}
+                                onDelete={(id) => deleteItem("projects", id)}
                                 readOnly={readOnly}
                                 computeDerivedPercent={computeDerivedPercent}
                                 pending={pending}
                                 setPendingValue={setPendingValue}
                                 setDraggingFlag={setDraggingFlag}
                                 commitSlider={commitSlider}
-                                onAddGoal={addGoalToProgress}
+                                onAddGoal={addGoalToProject}
                         />
                         <GoalsOverview
                                 paletteKey={paletteKey}

@@ -6,7 +6,7 @@ import "./header.css";
 export default function Header({ paletteKey, setPaletteKey, user, auth, provider }) {
   return (
     <div className="header">
-      <h2 className="header-title">Progress Tracker</h2>
+      <h2 className="header-title">Project Tracker</h2>
       <div className="header-controls">
         <AuthPanel user={user} auth={auth} provider={provider} />
         <label className="theme-label">Theme</label>
