@@ -82,6 +82,15 @@
         padding: 6px 8px;
 }
 
+.workspace-nav {
+}
+
+@media (max-width: 600px) {
+        .workspace-nav {
+                display: none;
+        }
+}
+
 .muted {
         opacity: 0.6;
 }
