@@ -1,19 +1,25 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import React, {
+	useEffect,
+	useRef,
+	useState,
+	useCallback,
+	useMemo,
+} from "react";
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider } from "firebase/auth";
 import {
-		getFirestore,
-		collection,
-		addDoc,
-		updateDoc,
-		deleteDoc,
-		doc,
-		onSnapshot,
-		serverTimestamp,
-		query,
-		where,
-		orderBy,
-		getDocs,
+	getFirestore,
+	collection,
+	addDoc,
+	updateDoc,
+	deleteDoc,
+	doc,
+	onSnapshot,
+	serverTimestamp,
+	query,
+	where,
+	orderBy,
+	getDocs,
 } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
 import Header from "./components/header/header";
@@ -23,24 +29,27 @@ import PeopleOverview from "./components/people-overview/people-overview";
 import { PALETTES, Card, Button } from "./components/ui/ui";
 import "./App.css";
 
-
 // ========== Firebase ==========
 const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
 const auth = getAuth(fbApp);
 const provider = new GoogleAuthProvider();
 
-
 // ========== Utilities ==========
 function useDebouncedCallback(fn, delay = 600) {
 	const fnRef = useRef(fn);
 	const timer = useRef(null);
-	useEffect(() => { fnRef.current = fn; }, [fn]);
+	useEffect(() => {
+		fnRef.current = fn;
+	}, [fn]);
 	useEffect(() => () => timer.current && clearTimeout(timer.current), []);
-	return useCallback((...args) => {
-		if (timer.current) clearTimeout(timer.current);
-		timer.current = setTimeout(() => fnRef.current(...args), delay);
-	}, [delay]);
+	return useCallback(
+		(...args) => {
+			if (timer.current) clearTimeout(timer.current);
+			timer.current = setTimeout(() => fnRef.current(...args), delay);
+		},
+		[delay],
+	);
 }
 
 function WorkspaceBar({
@@ -51,29 +60,44 @@ function WorkspaceBar({
 	deleteWorkspace,
 	resetLocal,
 	testConnection,
-	}) {
+}) {
 	const [name, setName] = useState("");
 	return (
 		<Card title="Workspaces" right={null}>
 			<div className="workspace-bar">
-					<select className="workspace-bar-select" value={selectedWsId || ""} onChange={(e) => setSelectedWsId(e.target.value)} >
-						{ workspaces.length === 0 && ( <option value="">No workspaces yet</option> ) }
-						{ workspaces.map((w) => (
-								<option key={w.id} value={w.id}>
-								{w.name || "Untitled"}
-								</option>
-						)) }
-					</select>
-					<Button subtle onClick={resetLocal}>Reset local cache</Button>
-					<Button onClick={testConnection}>Test connection</Button>
-					<Button
-						onClick={() => {
-							if (selectedWsId && window.confirm("Delete this workspace? This will remove all data.")) {
-								deleteWorkspace(selectedWsId);
-							}
-						}}
-						disabled={!selectedWsId}
-					>Delete workspace</Button>
+				<select
+					className="workspace-bar-select"
+					value={selectedWsId || ""}
+					onChange={(e) => setSelectedWsId(e.target.value)}
+				>
+					{workspaces.length === 0 && (
+						<option value="">No workspaces yet</option>
+					)}
+					{workspaces.map((w) => (
+						<option key={w.id} value={w.id}>
+							{w.name || "Untitled"}
+						</option>
+					))}
+				</select>
+				<Button subtle onClick={resetLocal}>
+					Reset local cache
+				</Button>
+				<Button onClick={testConnection}>Test connection</Button>
+				<Button
+					onClick={() => {
+						if (
+							selectedWsId &&
+							window.confirm(
+								"Delete this workspace? This will remove all data.",
+							)
+						) {
+							deleteWorkspace(selectedWsId);
+						}
+					}}
+					disabled={!selectedWsId}
+				>
+					Delete workspace
+				</Button>
 			</div>
 
 			<div className="workspace-create">
@@ -91,7 +115,9 @@ function WorkspaceBar({
 						if (id) setSelectedWsId(id);
 						setName("");
 					}}
-				>Create</Button>
+				>
+					Create
+				</Button>
 			</div>
 		</Card>
 	);
@@ -122,7 +148,7 @@ export default function App() {
 
 	// load workspaces for the current user
 	useEffect(() => {
-		if(!user) {
+		if (!user) {
 			setWorkspaces([]);
 			setSelectedWsId("");
 			return;
@@ -130,21 +156,21 @@ export default function App() {
 
 		const q = query(
 			collection(db, "workspaces"),
-			where("memberIds", "array-contains", user.uid)
+			where("memberIds", "array-contains", user.uid),
 			// NOTE: removed orderBy("createdAt") for now to avoid composite index error.
 			// After this works, add it back and follow the console link to create the index.
 		);
 		const unsub = onSnapshot(
 			q,
 			(snap) => {
-					const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-					setWorkspaces(list);
-					if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
+				const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+				setWorkspaces(list);
+				if (!selectedWsId && list[0]) setSelectedWsId(list[0].id);
 			},
 			(err) => {
-					console.error("workspace load failed", err);
-					setBanner(`Load workspaces failed: ${err.message}`);
-			}
+				console.error("workspace load failed", err);
+				setBanner(`Load workspaces failed: ${err.message}`);
+			},
 		);
 		return () => unsub();
 	}, [user]);
@@ -152,22 +178,28 @@ export default function App() {
 	// subscribe to subcollections for selected workspace
 	useEffect(() => {
 		if (!selectedWsId) {
-			setProjects([]); setGoals([]); setPeople([]);
+			setProjects([]);
+			setGoals([]);
+			setPeople([]);
 			return;
 		}
 		const base = doc(db, "workspaces", selectedWsId);
 
 		const unsub1 = onSnapshot(collection(base, "projects"), (snap) =>
-			setProjects(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+			setProjects(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
 		);
 		const unsub2 = onSnapshot(collection(base, "goals"), (snap) =>
-			setGoals(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+			setGoals(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
 		);
 		const unsub3 = onSnapshot(collection(base, "people"), (snap) =>
-			setPeople(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+			setPeople(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
 		);
 
-		return () => { unsub1(); unsub2(); unsub3(); };
+		return () => {
+			unsub1();
+			unsub2();
+			unsub3();
+		};
 	}, [selectedWsId]);
 
 	// helpers
@@ -178,7 +210,10 @@ export default function App() {
 
 	async function addItem(colName, item) {
 		const ref = getColRef(colName);
-		if (!ref) { setBanner("No workspace selected."); return ""; }
+		if (!ref) {
+			setBanner("No workspace selected.");
+			return "";
+		}
 		try {
 			const d = await addDoc(ref, { ...item, createdAt: serverTimestamp() });
 			return d.id;
@@ -190,7 +225,10 @@ export default function App() {
 
 	async function updateItem(colName, id, patch) {
 		const ref = getColRef(colName);
-		if (!ref) { setBanner("No workspace selected."); return; }
+		if (!ref) {
+			setBanner("No workspace selected.");
+			return;
+		}
 		try {
 			await updateDoc(doc(ref, id), patch);
 		} catch (err) {
@@ -199,7 +237,10 @@ export default function App() {
 	}
 	async function deleteItem(colName, id) {
 		const ref = getColRef(colName);
-		if (!ref) { setBanner("No workspace selected."); return; }
+		if (!ref) {
+			setBanner("No workspace selected.");
+			return;
+		}
 		try {
 			await deleteDoc(doc(ref, id));
 		} catch (err) {
@@ -229,7 +270,13 @@ export default function App() {
 			// Optimistically add a temporary option so the <select> isn't blank
 			setWorkspaces((prev) => [
 				...prev,
-				{ id: tempId, name, members: { [uid]: "owner" }, memberIds: [uid], createdAt: new Date() }
+				{
+					id: tempId,
+					name,
+					members: { [uid]: "owner" },
+					memberIds: [uid],
+					createdAt: new Date(),
+				},
 			]);
 			setSelectedWsId(tempId);
 
@@ -244,7 +291,9 @@ export default function App() {
 
 			// Switch the select to the real id and replace temp entry
 			setSelectedWsId(d.id);
-			setWorkspaces((prev) => prev.map((w) => (w.id === tempId ? { ...w, id: d.id } : w)));
+			setWorkspaces((prev) =>
+				prev.map((w) => (w.id === tempId ? { ...w, id: d.id } : w)),
+			);
 			setBanner(`Created workspace “${name}”.`);
 			return d.id;
 		} catch (err) {
@@ -260,8 +309,8 @@ export default function App() {
 			const wsRef = doc(db, "workspaces", id);
 			const subcols = ["projects", "goals", "people"];
 			for (const c of subcols) {
-					const snap = await getDocs(collection(wsRef, c));
-					await Promise.all(snap.docs.map((d) => deleteDoc(d.ref)));
+				const snap = await getDocs(collection(wsRef, c));
+				await Promise.all(snap.docs.map((d) => deleteDoc(d.ref)));
 			}
 			await deleteDoc(wsRef);
 			if (selectedWsId === id) setSelectedWsId("");
@@ -271,10 +320,9 @@ export default function App() {
 		}
 	}
 
-
 	async function updateWorkspaceMembers(id, members) {
-			try {
-				await updateDoc(doc(db, "workspaces", id), {
+		try {
+			await updateDoc(doc(db, "workspaces", id), {
 				members,
 				memberIds: Object.keys(members),
 			});
@@ -295,7 +343,10 @@ export default function App() {
 
 	// Test connection (permissions probe within selected workspace)
 	async function testConnection() {
-		if (!selectedWsId) { setBanner("No workspace selected."); return; }
+		if (!selectedWsId) {
+			setBanner("No workspace selected.");
+			return;
+		}
 		try {
 			const base = doc(db, "workspaces", selectedWsId);
 			const pingCol = collection(base, "__ping");
@@ -321,9 +372,9 @@ export default function App() {
 
 	const clearPendingValue = useCallback((col, id) => {
 		setPending((p) => {
-		const copy = { ...p[col] };
-		delete copy[id];
-		return { ...p, [col]: copy };
+			const copy = { ...p[col] };
+			delete copy[id];
+			return { ...p, [col]: copy };
 		});
 	}, []);
 
@@ -339,31 +390,40 @@ export default function App() {
 	}, [goals]);
 
 	function computeDerivedPercent(goalIds = []) {
-		const arr = goalIds.map((id) => (goalsById[id]?.percent ?? 0));
+		const arr = goalIds.map((id) => goalsById[id]?.percent ?? 0);
 		if (!arr.length) return 0;
 		const sum = arr.reduce((a, b) => a + b, 0);
 		return Math.round(sum / arr.length);
 	}
 
-	const commitSlider = useCallback((type, item, liveValue) => {
-		const col = type;
-		const id = item.id;
-		const pendingValue = pending[type]?.[id];
-		const finalValue = pendingValue ?? liveValue ?? 0;
-		if (type === "projects") debouncedPersist("projects", id, { percent: Number(finalValue) });
-		if (type === "goals") debouncedPersist("goals", id, { percent: Number(finalValue) });
-		clearPendingValue(type, id);
-		setDraggingFlag(type, id, false);
-	}, [pending, debouncedPersist, clearPendingValue, setDraggingFlag]);
+	const commitSlider = useCallback(
+		(type, item, liveValue) => {
+			const col = type;
+			const id = item.id;
+			const pendingValue = pending[type]?.[id];
+			const finalValue = pendingValue ?? liveValue ?? 0;
+			if (type === "projects")
+				debouncedPersist("projects", id, { percent: Number(finalValue) });
+			if (type === "goals")
+				debouncedPersist("goals", id, { percent: Number(finalValue) });
+			clearPendingValue(type, id);
+			setDraggingFlag(type, id, false);
+		},
+		[pending, debouncedPersist, clearPendingValue, setDraggingFlag],
+	);
 
 	return (
 		<div className={`app palette-${paletteKey}`}>
 			<div className="container">
-				<Header paletteKey={paletteKey} setPaletteKey={setPaletteKey} user={user} auth={auth} provider={provider} />
+				<Header
+					paletteKey={paletteKey}
+					setPaletteKey={setPaletteKey}
+					user={user}
+					auth={auth}
+					provider={provider}
+				/>
 
-				{banner && (
-					<div className="banner">{banner}</div>
-				)}
+				{banner && <div className="banner">{banner}</div>}
 
 				<WorkspaceBar
 					workspaces={workspaces}
@@ -418,7 +478,9 @@ export default function App() {
 				</div>
 
 				<div className="palette-info">
-					<small>Palette: <span>{PALETTES[paletteKey].name}</span></small>
+					<small>
+						Palette: <span>{PALETTES[paletteKey].name}</span>
+					</small>
 				</div>
 			</div>
 		</div>

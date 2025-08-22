@@ -2,12 +2,11 @@
 // The real `firebase-config.js` is ignored by git so you can keep secrets locally.
 
 export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
-  measurementId: "",
+	apiKey: "",
+	authDomain: "",
+	projectId: "",
+	storageBucket: "",
+	messagingSenderId: "",
+	appId: "",
+	measurementId: "",
 };
-

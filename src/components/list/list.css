@@ -1,82 +1,82 @@
 .list-empty {
-  opacity: 0.7;
+	opacity: 0.7;
 }
 
 .list-row {
-  display: grid;
-  gap: 12px;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px dashed var(--accent);
+	display: grid;
+	gap: 12px;
+	align-items: center;
+	padding: 10px 0;
+	border-bottom: 1px dashed var(--accent);
 }
 
 .list-row.projects,
 .list-row.goals {
-  grid-template-columns: 1fr minmax(180px, 1fr) auto;
+	grid-template-columns: 1fr minmax(180px, 1fr) auto;
 }
 
 .list-row.people {
-  grid-template-columns: 1fr minmax(120px, 160px) auto;
+	grid-template-columns: 1fr minmax(120px, 160px) auto;
 }
 
 .list-value {
-  text-align: right;
-  color: var(--accent);
+	text-align: right;
+	color: var(--accent);
 }
 
 .list-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
 }
 
 .list-row-controls {
-  grid-column: 1 / -1;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  opacity: 0.9;
+	grid-column: 1 / -1;
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	opacity: 0.9;
 }
 
 .list-label-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
 }
 
 .link-goals-summary {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 .link-goals-list {
-  margin-top: 8px;
-  display: grid;
-  gap: 6px;
+	margin-top: 8px;
+	display: grid;
+	gap: 6px;
 }
 
 .link-goals-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .status-select {
-  background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  padding: 4px 6px;
+	background: transparent;
+	color: var(--accent);
+	border: 1px solid var(--accent);
+	border-radius: 8px;
+	padding: 4px 6px;
 }
 
 .status-select option {
-  color: #000;
+	color: #000;
 }
 
 .delete-button {
-  color: #ff4d4f;
-  background: transparent;
-  border: 1px solid #ff4d4f;
-  border-radius: 8px;
-  padding: 4px 8px;
+	color: #ff4d4f;
+	background: transparent;
+	border: 1px solid #ff4d4f;
+	border-radius: 8px;
+	padding: 4px 8px;
 }
