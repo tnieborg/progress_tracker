@@ -8,13 +8,29 @@ export default function MobileMenu({ paletteKey, setPaletteKey, user, auth, prov
                 <div className="mobile-menu-container">
                         <button
                                 className="mobile-menu-button"
-                                onClick={() => setOpen((o) => !o)}
+                                onClick={() => setOpen(true)}
                         >
                                 ☰
                         </button>
-                        {open && (
-                                <div className="mobile-menu-panel">
-                                        <AuthPanel user={user} auth={auth} provider={provider} />
+                        <div
+                                className={`mobile-menu-overlay ${open ? "open" : ""}`}
+                                onClick={() => setOpen(false)}
+                        >
+                                <div
+                                        className="mobile-menu-drawer"
+                                        onClick={(e) => e.stopPropagation()}
+                                >
+                                        <button
+                                                className="mobile-menu-close"
+                                                onClick={() => setOpen(false)}
+                                        >
+                                                ✕
+                                        </button>
+                                        <AuthPanel
+                                                user={user}
+                                                auth={auth}
+                                                provider={provider}
+                                        />
                                         <label className="theme-label">Theme</label>
                                         <select
                                                 className="theme-select"
@@ -28,7 +44,7 @@ export default function MobileMenu({ paletteKey, setPaletteKey, user, auth, prov
                                                 ))}
                                         </select>
                                 </div>
-                        )}
+                        </div>
                 </div>
         );
 }
