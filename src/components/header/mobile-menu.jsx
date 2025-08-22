@@ -1,8 +1,17 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { PALETTES } from "../ui/ui";
 import AuthPanel from "./auth-panel";
 
-export default function MobileMenu({ paletteKey, setPaletteKey, user, auth, provider }) {
+export default function MobileMenu({
+        paletteKey,
+        setPaletteKey,
+        user,
+        auth,
+        provider,
+        workspaces,
+        currentWsId,
+}) {
         const [open, setOpen] = useState(false);
         return (
                 <div className="mobile-menu-container">
@@ -26,6 +35,26 @@ export default function MobileMenu({ paletteKey, setPaletteKey, user, auth, prov
                                         >
                                                 ✕
                                         </button>
+                                        <span className="theme-label">Workspaces</span>
+                                        <div className="mobile-workspaces">
+                                                {workspaces.length === 0 && (
+                                                        <span>No workspaces yet</span>
+                                                )}
+                                                {workspaces.map((w) => (
+                                                        <Link
+                                                                key={w.id}
+                                                                to={`/workspace/${w.id}`}
+                                                                className={
+                                                                        w.id === currentWsId
+                                                                                ? "workspace-link active"
+                                                                                : "workspace-link"
+                                                                }
+                                                                onClick={() => setOpen(false)}
+                                                        >
+                                                                {w.name || "Untitled"}
+                                                        </Link>
+                                                ))}
+                                        </div>
                                         <AuthPanel
                                                 user={user}
                                                 auth={auth}

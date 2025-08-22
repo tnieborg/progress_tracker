@@ -5,11 +5,13 @@ import MobileMenu from "./mobile-menu";
 import "./header.css";
 
 export default function Header({
-	paletteKey,
-	setPaletteKey,
-	user,
-	auth,
-	provider,
+        paletteKey,
+        setPaletteKey,
+        user,
+        auth,
+        provider,
+        workspaces,
+        currentWsId,
 }) {
 	return (
 		<div className="header">
@@ -35,6 +37,8 @@ export default function Header({
                                 user={user}
                                 auth={auth}
                                 provider={provider}
+                                workspaces={workspaces}
+                                currentWsId={currentWsId}
                         />
                 </div>
         );
