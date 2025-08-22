@@ -3,21 +3,21 @@ import { Card, AddRow } from "../ui/ui";
 import "./list.css";
 
 export default function List({
-	title,
-	type,
-	data,
-	onAdd,
-	onUpdate,
-	onDelete,
-	paletteKey,
-	readOnly,
-	goals = [],
-	computeDerivedPercent = () => 0,
-	pending,
-	setPendingValue,
-	setDraggingFlag,
-	commitSlider,
-	onAddGoal,
+        title,
+        type,
+        data,
+        onAdd,
+        onUpdate,
+        onDelete,
+        paletteKey,
+        readOnly,
+        computeDerivedPercent = () => ({ percent: 0, count: 0 }),
+        pending,
+        setPendingValue,
+        setDraggingFlag,
+        commitSlider,
+        onSelectItem,
+        selectedId,
 }) {
 	return (
 		<Card
@@ -31,27 +31,34 @@ export default function List({
 				const isGoals = type === "goals";
 				const isPeople = type === "people";
 
-				const colKey = isProjects ? "projects" : isGoals ? "goals" : null;
-				const linkedIds = isProjects ? item.goalIds || [] : [];
-				const autoFromGoals = isProjects ? (item.auto ?? false) : false;
-				const derived = isProjects ? computeDerivedPercent(linkedIds) : 0;
-				const baseLive = isProjects
-					? (item.percent ?? 0)
-					: isGoals
-						? (item.percent ?? 0)
-						: 0;
-				const liveValue =
-					isProjects && autoFromGoals && linkedIds.length ? derived : baseLive;
-				const pendingValue = colKey ? pending[colKey][item.id] : undefined;
-				const shownValue =
-					pendingValue !== undefined ? pendingValue : liveValue;
+                                const colKey = isProjects ? "projects" : isGoals ? "goals" : null;
+                                const autoFromGoals = isProjects ? (item.auto ?? false) : false;
+                                const { percent: derived, count: goalCount } = isProjects
+                                        ? computeDerivedPercent(item.id)
+                                        : { percent: 0, count: 0 };
+                                const baseLive = isProjects
+                                        ? (item.percent ?? 0)
+                                        : isGoals
+                                                ? (item.percent ?? 0)
+                                                : 0;
+                                const liveValue =
+                                        isProjects && autoFromGoals && goalCount ? derived : baseLive;
+                                const pendingValue = colKey ? pending[colKey][item.id] : undefined;
+                                const shownValue =
+                                        pendingValue !== undefined ? pendingValue : liveValue;
 
-				return (
-					<div key={item.id} className={`list-row ${type}`}>
-						{isProjects && (
-							<>
-								<span>{item.name}</span>
-								<input
+                                return (
+                                        <div
+                                                key={item.id}
+                                                className={`list-row ${type} ${
+                                                        selectedId === item.id ? "selected" : ""
+                                                }`}
+                                                onClick={() => onSelectItem && onSelectItem(item.id)}
+                                        >
+                                                {isProjects && (
+                                                        <>
+                                                                <span>{item.name}</span>
+                                                                <input
 									type="range"
 									min={0}
 									max={100}
@@ -67,77 +74,39 @@ export default function List({
 									onMouseUp={() => commitSlider("projects", item, liveValue)}
 									onTouchEnd={() => commitSlider("projects", item, liveValue)}
 									onBlur={() => commitSlider("projects", item, liveValue)}
-									disabled={readOnly || (autoFromGoals && linkedIds.length > 0)}
-								/>
-								<div className="list-actions">
-									<div className="list-value">
-										{autoFromGoals && linkedIds.length > 0
-											? `${derived}% (auto)`
-											: `${shownValue}%`}
-									</div>
-									{!readOnly && (
-										<button
-											onClick={() => onDelete(item.id)}
-											className="delete-button"
+                                                                        disabled={readOnly || (autoFromGoals && goalCount > 0)}
+                                                                />
+                                                                <div className="list-actions">
+                                                                        <div className="list-value">
+                                                                                {autoFromGoals && goalCount > 0
+                                                                                        ? `${derived}% (auto)`
+                                                                                        : `${shownValue}%`}
+                                                                        </div>
+                                                                        {!readOnly && (
+                                                                                <button
+                                                                                        onClick={() => onDelete(item.id)}
+                                                                                        className="delete-button"
 										>
 											Delete
 										</button>
 									)}
 								</div>
 
-								<div className="list-row-controls">
-									<label className="list-label-checkbox">
-										<input
-											type="checkbox"
-											checked={autoFromGoals}
-											onChange={(e) =>
-												onUpdate(item.id, { auto: e.target.checked })
-											}
-											disabled={readOnly}
-										/>
-										Auto from goals
-									</label>
-									<details>
-										<summary className="link-goals-summary">
-											Link goals ({linkedIds.length})
-										</summary>
-										<div className="link-goals-list">
-											{goals.map((g) => {
-												const checked = linkedIds.includes(g.id);
-												return (
-													<label key={g.id} className="link-goals-item">
-														<input
-															type="checkbox"
-															checked={checked}
-															onChange={(e) => {
-																const next = new Set(linkedIds);
-																if (e.target.checked) next.add(g.id);
-																else next.delete(g.id);
-																onUpdate(item.id, {
-																	goalIds: Array.from(next),
-																});
-															}}
-															disabled={readOnly}
-														/>
-														<span>
-															{g.title} ({g.percent ?? 0}%)
-														</span>
-													</label>
-												);
-											})}
-											{onAddGoal && (
-												<AddRow
-													type="goals"
-													placeholder="Add a goal"
-													disabled={readOnly}
-													onAdd={(goal) => onAddGoal(item.id, goal)}
-												/>
-											)}
-										</div>
-									</details>
-								</div>
-							</>
-						)}
+                                                                <div className="list-row-controls">
+                                                                        <label className="list-label-checkbox">
+                                                                                <input
+                                                                                        type="checkbox"
+                                                                                        checked={autoFromGoals}
+                                                                                        onChange={(e) =>
+                                                                                                onUpdate(item.id, { auto: e.target.checked })
+                                                                                        }
+                                                                                        disabled={readOnly}
+                                                                                />
+                                                                                Auto from goals
+                                                                        </label>
+                                                                </div>
+                                                        </>
+                                                )}
 
 						{isGoals && (
 							<>

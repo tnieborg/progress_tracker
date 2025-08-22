@@ -37,8 +37,8 @@ export function AddRow({ type, onAdd, disabled, placeholder }) {
 		const v = text.trim();
 		if (!v) return;
 		if (type === "people") onAdd({ name: v, status: "watching" });
-		if (type === "projects")
-			onAdd({ name: v, percent: 0, goalIds: [], auto: false });
+                if (type === "projects")
+                        onAdd({ name: v, percent: 0, auto: false });
 		if (type === "goals") onAdd({ title: v, percent: 0 });
 		setText("");
 	};
