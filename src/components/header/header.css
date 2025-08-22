@@ -1,7 +1,8 @@
 .header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
 }
 
 .header-title {
@@ -50,5 +51,41 @@
 }
 
 .auth-error {
-	color: var(--accent);
+        color: var(--accent);
+}
+
+.mobile-menu-container {
+        display: none;
+        position: relative;
+}
+
+.mobile-menu-button {
+        background: transparent;
+        border: none;
+        color: var(--text);
+        font-size: 24px;
+}
+
+.mobile-menu-panel {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: var(--bg);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        z-index: 10;
+}
+
+@media (max-width: 600px) {
+        .header-controls {
+                display: none;
+        }
+
+        .mobile-menu-container {
+                display: block;
+        }
 }
