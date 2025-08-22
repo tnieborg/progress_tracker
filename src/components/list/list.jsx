@@ -62,8 +62,18 @@ export default function List({
                   onBlur={() => commitSlider("projects", item, liveValue)}
                   disabled={readOnly || (autoFromGoals && linkedIds.length > 0)}
                 />
-                <div className="list-value">
-                  {autoFromGoals && linkedIds.length > 0 ? `${derived}% (auto)` : `${shownValue}%`}
+                <div className="list-actions">
+                  <div className="list-value">
+                    {autoFromGoals && linkedIds.length > 0 ? `${derived}% (auto)` : `${shownValue}%`}
+                  </div>
+                  {!readOnly && (
+                    <button
+                      onClick={() => onDelete(item.id)}
+                      className="delete-button"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
 
                 <div className="list-row-controls">
@@ -128,7 +138,17 @@ export default function List({
                   onBlur={() => commitSlider("goals", item, liveValue)}
                   disabled={readOnly}
                 />
-                <div className="list-value">{shownValue}%</div>
+                <div className="list-actions">
+                  <div className="list-value">{shownValue}%</div>
+                  {!readOnly && (
+                    <button
+                      onClick={() => onDelete(item.id)}
+                      className="delete-button"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               </>
             )}
 

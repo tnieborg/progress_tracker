@@ -13,6 +13,7 @@ import {
         query,
         where,
         orderBy,
+        getDocs,
 } from "firebase/firestore";
 import { firebaseConfig } from "./firebase-config";
 import Header from "./components/header/header";
@@ -47,6 +48,7 @@ function WorkspaceBar({
         selectedWsId,
         setSelectedWsId,
         createWorkspace,
+        deleteWorkspace,
         resetLocal,
         testConnection,
         }) {
@@ -70,6 +72,16 @@ function WorkspaceBar({
                         </select>
                         <Button subtle onClick={resetLocal}>Reset local cache</Button>
                         <Button onClick={testConnection}>Test connection</Button>
+                        <Button
+                        onClick={() => {
+                                if (selectedWsId && window.confirm("Delete this workspace? This will remove all data.")) {
+                                        deleteWorkspace(selectedWsId);
+                                }
+                        }}
+                        disabled={!selectedWsId}
+                        >
+                        Delete workspace
+                        </Button>
                 </div>
 
                 <div className="workspace-create">
@@ -211,7 +223,7 @@ export default function App() {
         }
 
 	// Workspace operations
-	async function createWorkspace(name) {
+        async function createWorkspace(name) {
 		if (!auth.currentUser) {
 			setBanner("Please sign in to create a workspace.");
 			return "";
@@ -250,13 +262,30 @@ export default function App() {
 			setBanner(`Create workspace failed: ${err.message}`);
 			return "";
 		}
-	}
+        }
 
 
-	async function updateWorkspaceMembers(id, members) {
-		try {
-			await updateDoc(doc(db, "workspaces", id), {
-			members,
+        async function deleteWorkspace(id) {
+                try {
+                        const wsRef = doc(db, "workspaces", id);
+                        const subcols = ["projects", "goals", "people"];
+                        for (const c of subcols) {
+                                const snap = await getDocs(collection(wsRef, c));
+                                await Promise.all(snap.docs.map((d) => deleteDoc(d.ref)));
+                        }
+                        await deleteDoc(wsRef);
+                        if (selectedWsId === id) setSelectedWsId("");
+                        setBanner("Workspace deleted.");
+                } catch (err) {
+                        setBanner(`Delete workspace failed: ${err.message}`);
+                }
+        }
+
+
+        async function updateWorkspaceMembers(id, members) {
+                try {
+                        await updateDoc(doc(db, "workspaces", id), {
+                        members,
 			memberIds: Object.keys(members),
 			});
 		} catch (err) {
@@ -349,6 +378,7 @@ export default function App() {
                         selectedWsId={selectedWsId}
                         setSelectedWsId={setSelectedWsId}
                         createWorkspace={createWorkspace}
+                        deleteWorkspace={deleteWorkspace}
                         resetLocal={resetLocal}
                         testConnection={testConnection}
                         />
