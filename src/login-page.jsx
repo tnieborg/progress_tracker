@@ -24,16 +24,24 @@ export default function LoginPage() {
 		}
 	};
 
-	const handleEmailSignIn = async () => {
-		try {
-			setError("");
-			await signInWithEmailAndPassword(auth, email, password);
-			navigate("/");
-		} catch (e) {
-			console.error("email sign-in failed", e);
-			setError("Sign in failed");
-		}
-	};
+        const handleEmailSignIn = async () => {
+                try {
+                        setError("");
+                        await signInWithEmailAndPassword(auth, email, password);
+                        navigate("/");
+                } catch (e) {
+                        console.error("email sign-in failed", e);
+                        if (
+                                e.code === "auth/wrong-password" ||
+                                e.code === "auth/user-not-found" ||
+                                e.code === "auth/invalid-email"
+                        ) {
+                                setError("Incorrect email or password.");
+                        } else {
+                                setError("Sign in failed");
+                        }
+                }
+        };
 
         return (
                 <div className="profile-page">
