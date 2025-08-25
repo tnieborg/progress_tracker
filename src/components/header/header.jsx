@@ -5,18 +5,19 @@ import MobileMenu from "./mobile-menu";
 import "./header.css";
 
 export default function Header({
-	paletteKey,
-	setPaletteKey,
-	user,
-	auth,
-	workspaces,
-	currentWsId,
-	createWorkspace,
+        paletteKey,
+        setPaletteKey,
+        user,
+        auth,
+        workspaces,
+        currentWsId,
+        createWorkspace,
+        showWorkspaceMenu = true,
 }) {
-	return (
-		<div className="header">
-			<h2 className="header-title">Project Tracker</h2>
-			<div className="header-controls">
+        return (
+                <div className="header">
+                        <h2 className="header-title">Project Tracker</h2>
+                        <div className="header-controls">
 				<AuthPanel user={user} auth={auth} />
 				<label className="theme-label">Theme</label>
 				<select
@@ -29,17 +30,19 @@ export default function Header({
 							{v.name}
 						</option>
 					))}
-				</select>
-			</div>
-			<MobileMenu
-				paletteKey={paletteKey}
-				setPaletteKey={setPaletteKey}
-				user={user}
-				auth={auth}
-				workspaces={workspaces}
-				currentWsId={currentWsId}
-				createWorkspace={createWorkspace}
-			/>
-		</div>
-	);
+                                </select>
+                        </div>
+                        {showWorkspaceMenu && (
+                                <MobileMenu
+                                        paletteKey={paletteKey}
+                                        setPaletteKey={setPaletteKey}
+                                        user={user}
+                                        auth={auth}
+                                        workspaces={workspaces}
+                                        currentWsId={currentWsId}
+                                        createWorkspace={createWorkspace}
+                                />
+                        )}
+                </div>
+        );
 }
