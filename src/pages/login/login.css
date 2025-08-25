@@ -1,0 +1,26 @@
+.profile-page {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+}
+
+.auth-grid {
+        display: grid;
+        gap: 12px;
+}
+
+.auth-input {
+        background: transparent;
+        color: var(--text);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        padding: 6px 8px;
+}
+
+.auth-link {
+        color: var(--accent);
+}
+
+.auth-error {
+        color: var(--accent);
+}

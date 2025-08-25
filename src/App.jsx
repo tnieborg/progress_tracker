@@ -17,10 +17,10 @@ import {
 import { Link, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { db, auth } from "./firebase";
 import Header from "./components/header/header";
-import WorkspacePage from "./workspace-page";
-import CreateProfile from "./create-profile";
-import EditProfile from "./edit-profile";
-import LoginPage from "./login-page";
+import WorkspacePage from "./pages/workspace";
+import CreateProfile from "./pages/create-profile";
+import EditProfile from "./pages/edit-profile";
+import LoginPage from "./pages/login";
 import { Card, Button } from "./components/ui/ui";
 import "./App.css";
 

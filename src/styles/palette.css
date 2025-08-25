@@ -1,0 +1,23 @@
+.palette-royalViolet {
+        --bg: #1b1b2f;
+        --card: #2c2c3e;
+        --text: #f1f1f8;
+        --accent: #9d4edd;
+        --accent-subtle: #c77dff;
+}
+
+.palette-coralSpark {
+        --bg: #202124;
+        --card: #2f3136;
+        --text: #eeeeee;
+        --accent: #ff6b6b;
+        --accent-subtle: #ff9f80;
+}
+
+.palette-neonCyan {
+        --bg: #0d1b2a;
+        --card: #1b263b;
+        --text: #e0e1dd;
+        --accent: #00b4d8;
+        --accent-subtle: #90e0ef;
+}
