@@ -264,11 +264,7 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                         canDelete={canDeleteProject}
                                         computeDerivedPercent={computeDerivedPercent}
                                         selectedId={selectedProjectId}
-                                        onSelectItem={(id) =>
-                                                setSelectedProjectId((prev) =>
-                                                        prev === id ? "" : id,
-                                                )
-                                        }
+                                        onSelectItem={(id) => setSelectedProjectId(id)}
                                 />
 
                                 {selectedProjectId ? (
