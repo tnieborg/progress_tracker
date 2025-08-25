@@ -122,3 +122,14 @@
         --accent: #00b4d8;
         --accent-subtle: #90e0ef;
 }
+
+.profile-page {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+}
+
+.auth-grid {
+        display: grid;
+        gap: 12px;
+}
