@@ -21,6 +21,7 @@ import WorkspacePage from "./pages/workspace";
 import CreateProfile from "./pages/create-profile";
 import EditProfile from "./pages/edit-profile";
 import LoginPage from "./pages/login";
+import Dashboard from "./pages/dashboard";
 import { Card, Button } from "./components/ui/ui";
 import "./App.css";
 
@@ -128,6 +129,7 @@ const navigate = useNavigate();
 const currentWsId = location.pathname.startsWith("/workspace/")
         ? location.pathname.split("/")[2]
         : "";
+const isDashboard = location.pathname === "/";
 
        useEffect(() => {
                if (
@@ -159,7 +161,6 @@ const currentWsId = location.pathname.startsWith("/workspace/")
                         (snap) => {
                                 const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
                                 setWorkspaces(list);
-                                if (!currentWsId && list[0]) navigate(`/workspace/${list[0].id}`);
                         },
                         (err) => {
                                 console.error("workspace load failed", err);
@@ -167,7 +168,7 @@ const currentWsId = location.pathname.startsWith("/workspace/")
                         },
                 );
                 return () => unsub();
-        }, [user, currentWsId, navigate]);
+        }, [user, currentWsId]);
 
         async function createWorkspace(name) {
                 if (!auth.currentUser) {
@@ -282,19 +283,20 @@ const currentWsId = location.pathname.startsWith("/workspace/")
         return (
                 <div className={`app palette-${paletteKey}`}>
                         <div className="container">
-                               <Header
-                                       paletteKey={paletteKey}
-                                       setPaletteKey={handlePaletteChange}
-                                       user={user}
-                                       auth={auth}
-                                       workspaces={workspaces}
-                                       currentWsId={currentWsId}
-                                       createWorkspace={createWorkspace}
-                               />
+                        <Header
+                                paletteKey={paletteKey}
+                                setPaletteKey={handlePaletteChange}
+                                user={user}
+                                auth={auth}
+                                workspaces={workspaces}
+                                currentWsId={currentWsId}
+                                createWorkspace={createWorkspace}
+                                showWorkspaceMenu={!isDashboard}
+                        />
 
                                 {banner && <div className="banner">{banner}</div>}
 
-                               {user && (
+                               {user && !isDashboard && (
                                        <WorkspaceNav
                                                workspaces={workspaces}
                                                currentWsId={currentWsId}
@@ -311,6 +313,15 @@ const currentWsId = location.pathname.startsWith("/workspace/")
                                        <Route path="/profile/new" element={<CreateProfile />} />
                                        {user && (
                                                <>
+                                                       <Route
+                                                               path="/"
+                                                               element={
+                                                                       <Dashboard
+                                                                               workspaces={workspaces}
+                                                                               createWorkspace={createWorkspace}
+                                                                       />
+                                                               }
+                                                       />
                                                        <Route
                                                                path="/workspace/:id"
                                                                element={
