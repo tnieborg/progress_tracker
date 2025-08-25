@@ -37,7 +37,6 @@ export default function Header({
                                         paletteKey={paletteKey}
                                         setPaletteKey={setPaletteKey}
                                         user={user}
-                                        auth={auth}
                                         workspaces={workspaces}
                                         currentWsId={currentWsId}
                                         createWorkspace={createWorkspace}
