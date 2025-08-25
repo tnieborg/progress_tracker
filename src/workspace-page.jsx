@@ -85,9 +85,10 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                 }
                 try {
                         if (colName === "people") {
+                                const email = item.email.toLowerCase();
                                 const q = query(
                                         collection(db, "profiles"),
-                                        where("email", "==", item.email),
+                                        where("email", "==", email),
                                 );
                                 const snap = await getDocs(q);
                                 if (snap.empty) {
@@ -102,6 +103,7 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                 });
                                 const d = await addDoc(ref, {
                                         ...item,
+                                        email,
                                         uid,
                                         createdAt: serverTimestamp(),
                                 });

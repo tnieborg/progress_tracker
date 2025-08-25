@@ -11,6 +11,8 @@ import {
         query,
         where,
         getDocs,
+        getDoc,
+        setDoc,
 } from "firebase/firestore";
 import { Link, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { db, auth } from "./firebase";
@@ -89,6 +91,24 @@ export default function App() {
                 const unsub = onAuthStateChanged(auth, setUser);
                 return () => unsub();
         }, []);
+
+       useEffect(() => {
+               if (!user) return;
+               (async () => {
+                       try {
+                               const pRef = doc(db, "profiles", user.uid);
+                               const snap = await getDoc(pRef);
+                               if (!snap.exists()) {
+                                       await setDoc(pRef, {
+                                               email: user.email?.toLowerCase() || "",
+                                               name: user.displayName || "",
+                                       });
+                               }
+                       } catch (err) {
+                               console.error("ensure profile failed", err);
+                       }
+               })();
+       }, [user]);
 
         const [banner, setBanner] = useState("");
         const [workspaces, setWorkspaces] = useState([]);

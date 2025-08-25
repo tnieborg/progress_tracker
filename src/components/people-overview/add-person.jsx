@@ -8,7 +8,7 @@ export default function AddPerson({ onAdd, disabled }) {
 
         const handleSubmit = () => {
                 const n = name.trim();
-                const e = email.trim();
+                const e = email.trim().toLowerCase();
                 if (!e) return;
                 const payload = { email: e, status };
                 if (n) payload.name = n;
