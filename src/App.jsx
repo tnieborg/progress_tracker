@@ -11,6 +11,8 @@ import {
         query,
         where,
         getDocs,
+        getDoc,
+        setDoc,
 } from "firebase/firestore";
 import { Link, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { db, auth } from "./firebase";
@@ -22,9 +24,19 @@ import LoginPage from "./login-page";
 import { Card, Button } from "./components/ui/ui";
 import "./App.css";
 
-function WorkspaceNav({ workspaces, currentWsId, createWorkspace, deleteWorkspace, resetLocal, testConnection }) {
+function WorkspaceNav({
+        workspaces,
+        currentWsId,
+        currentUser,
+        createWorkspace,
+        deleteWorkspace,
+        resetLocal,
+        testConnection,
+}) {
         const [name, setName] = useState("");
         const navigate = useNavigate();
+        const current = workspaces.find((w) => w.id === currentWsId);
+        const role = current?.members?.[currentUser?.uid];
         return (
                 <div className="workspace-nav">
                         <Card title="Workspaces" right={null}>
@@ -52,7 +64,7 @@ function WorkspaceNav({ workspaces, currentWsId, createWorkspace, deleteWorkspac
                                                                 deleteWorkspace(currentWsId);
                                                         }
                                                 }}
-                                                disabled={!currentWsId}
+                                                disabled={!currentWsId || role !== "owner"}
                                         >
                                                 Delete workspace
                                         </Button>
@@ -90,6 +102,24 @@ export default function App() {
                 return () => unsub();
         }, []);
 
+       useEffect(() => {
+               if (!user) return;
+               (async () => {
+                       try {
+                               const pRef = doc(db, "profiles", user.uid);
+                               const snap = await getDoc(pRef);
+                               if (!snap.exists()) {
+                                       await setDoc(pRef, {
+                                               email: user.email?.toLowerCase() || "",
+                                               name: user.displayName || "",
+                                       });
+                               }
+                       } catch (err) {
+                               console.error("ensure profile failed", err);
+                       }
+               })();
+       }, [user]);
+
         const [banner, setBanner] = useState("");
         const [workspaces, setWorkspaces] = useState([]);
 
@@ -106,6 +136,12 @@ const currentWsId = location.pathname.startsWith("/workspace/")
                        location.pathname !== "/profile/new"
                ) {
                        navigate("/login");
+               }
+       }, [user, location.pathname, navigate]);
+
+       useEffect(() => {
+               if (user && location.pathname === "/login") {
+                       navigate("/");
                }
        }, [user, location.pathname, navigate]);
 
@@ -160,6 +196,16 @@ const currentWsId = location.pathname.startsWith("/workspace/")
                                 memberIds: [uid],
                                 paletteKey: "royalViolet",
                         });
+                        await setDoc(
+                                doc(db, "workspaces", d.id, "people", uid),
+                                {
+                                        uid,
+                                        email: auth.currentUser.email?.toLowerCase() || "",
+                                        name: auth.currentUser.displayName || "",
+                                        role: "owner",
+                                        createdAt: serverTimestamp(),
+                                },
+                        );
                         setWorkspaces((prev) =>
                                 prev.map((w) => (w.id === tempId ? { ...w, id: d.id } : w)),
                         );
@@ -252,6 +298,7 @@ const currentWsId = location.pathname.startsWith("/workspace/")
                                        <WorkspaceNav
                                                workspaces={workspaces}
                                                currentWsId={currentWsId}
+                                               currentUser={user}
                                                createWorkspace={createWorkspace}
                                                deleteWorkspace={deleteWorkspace}
                                                resetLocal={resetLocal}
