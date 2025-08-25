@@ -43,11 +43,15 @@
 }
 
 .auth-error {
-	color: var(--accent);
+        color: var(--accent);
+}
+
+.mobile-menu-heading {
+        opacity: 0.8;
 }
 
 .mobile-menu-container {
-	display: none;
+        display: none;
 }
 
 .mobile-menu-button {
