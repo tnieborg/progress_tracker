@@ -36,7 +36,6 @@ export function AddRow({ type, onAdd, disabled, placeholder }) {
 	const handleSubmit = () => {
 		const v = text.trim();
 		if (!v) return;
-                if (type === "people") onAdd({ name: v, status: "watching" });
                 if (type === "projects") onAdd({ name: v, percent: 0 });
                 if (type === "goals") onAdd({ title: v, status: "todo" });
 		setText("");

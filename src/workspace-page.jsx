@@ -8,6 +8,10 @@ import {
         doc,
         onSnapshot,
         serverTimestamp,
+        query,
+        where,
+        getDocs,
+        arrayUnion,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import ProjectsOverview from "./components/projects-overview/projects-overview";
@@ -80,7 +84,34 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                         return "";
                 }
                 try {
-                        const d = await addDoc(ref, { ...item, createdAt: serverTimestamp() });
+                        if (colName === "people") {
+                                const q = query(
+                                        collection(db, "profiles"),
+                                        where("email", "==", item.email),
+                                );
+                                const snap = await getDocs(q);
+                                if (snap.empty) {
+                                        setBanner("User not found");
+                                        return "";
+                                }
+                                const uid = snap.docs[0].id;
+                                const wsRef = doc(db, "workspaces", wsId);
+                                await updateDoc(wsRef, {
+                                        [`members.${uid}`]: "editor",
+                                        memberIds: arrayUnion(uid),
+                                });
+                                const d = await addDoc(ref, {
+                                        ...item,
+                                        uid,
+                                        createdAt: serverTimestamp(),
+                                });
+                                return d.id;
+                        }
+
+                        const d = await addDoc(ref, {
+                                ...item,
+                                createdAt: serverTimestamp(),
+                        });
                         return d.id;
                 } catch (err) {
                         setBanner(`Add failed: ${err.message}`);

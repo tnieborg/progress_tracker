@@ -14,6 +14,7 @@ export default function List({
         computeDerivedPercent = () => ({ percent: 0, count: 0 }),
         onSelectItem,
         selectedId,
+        children,
 }) {
         return (
                 <Card
@@ -86,7 +87,12 @@ export default function List({
 
                                                 {isPeople && (
                                                         <>
-                                                                <span>{item.name}</span>
+                                                                <span>
+                                                                        {item.name}
+                                                                        {item.email
+                                                                                ? ` (${item.email})`
+                                                                                : ""}
+                                                                </span>
                                                                 <select
                                                                         className="status-select"
                                                                         value={item.status || "watching"}
@@ -114,21 +120,20 @@ export default function List({
                                         </div>
                                 );
                         })}
-
-                        {!readOnly && (
+                        {!readOnly && type !== "people" && (
                                 <AddRow
                                         type={type}
                                         placeholder={
-                                                type === "people"
-                                                        ? "Add a person/project"
-                                                        : type === "goals"
-                                                                ? "Add a goal"
-                                                                : "Add a project"
+                                                type === "goals"
+                                                        ? "Add a goal"
+                                                        : "Add a project"
                                         }
                                         disabled={readOnly}
                                         onAdd={onAdd}
                                 />
                         )}
+
+                        {children}
                 </Card>
         );
 }
