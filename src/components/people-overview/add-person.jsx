@@ -21,7 +21,6 @@ export default function AddPerson({ onAdd, disabled }) {
         return (
                 <div
                         className="add-row"
-                        style={{ gridTemplateColumns: "1fr 1fr auto auto" }}
                 >
                         <input
                                 disabled={disabled}

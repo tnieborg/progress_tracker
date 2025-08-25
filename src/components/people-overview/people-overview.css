@@ -1,3 +1,23 @@
 .people-overview {
         position: relative;
 }
+
+.people-overview .add-row {
+	grid-template-columns: 1fr 1fr auto auto;
+}
+
+.people-overview .add-row input,
+.people-overview .add-row select {
+	background: transparent;
+    color: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+@media screen and (max-width: 768px) {
+	.people-overview .add-row {
+		display: grid;
+		grid-template-columns: 1fr;
+	}
+}
