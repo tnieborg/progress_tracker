@@ -13,11 +13,12 @@ import {
         getDocs,
 } from "firebase/firestore";
 import { Link, Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import { db, auth, provider } from "./firebase";
+import { db, auth } from "./firebase";
 import Header from "./components/header/header";
 import WorkspacePage from "./workspace-page";
 import CreateProfile from "./create-profile";
 import EditProfile from "./edit-profile";
+import LoginPage from "./login-page";
 import { Card, Button } from "./components/ui/ui";
 import "./App.css";
 
@@ -92,15 +93,21 @@ export default function App() {
         const [banner, setBanner] = useState("");
         const [workspaces, setWorkspaces] = useState([]);
 
-        const location = useLocation();
-        const navigate = useNavigate();
-        const currentWsId = location.pathname.startsWith("/workspace/")
-                ? location.pathname.split("/")[2]
-                : "";
+const location = useLocation();
+const navigate = useNavigate();
+const currentWsId = location.pathname.startsWith("/workspace/")
+        ? location.pathname.split("/")[2]
+        : "";
 
-        useEffect(() => {
-                if (!user) {
-                        setWorkspaces([]);
+       useEffect(() => {
+               if (!user && location.pathname !== "/login") {
+                       navigate("/login");
+               }
+       }, [user, location.pathname, navigate]);
+
+       useEffect(() => {
+               if (!user) {
+                       setWorkspaces([]);
                         return;
                 }
                 const q = query(
@@ -225,43 +232,49 @@ export default function App() {
         return (
                 <div className={`app palette-${paletteKey}`}>
                         <div className="container">
-                                <Header
-                                        paletteKey={paletteKey}
-                                        setPaletteKey={handlePaletteChange}
-                                        user={user}
-                                        auth={auth}
-                                        provider={provider}
-                                        workspaces={workspaces}
-                                        currentWsId={currentWsId}
-                                        createWorkspace={createWorkspace}
-                                />
+                               <Header
+                                       paletteKey={paletteKey}
+                                       setPaletteKey={handlePaletteChange}
+                                       user={user}
+                                       auth={auth}
+                                       workspaces={workspaces}
+                                       currentWsId={currentWsId}
+                                       createWorkspace={createWorkspace}
+                               />
 
                                 {banner && <div className="banner">{banner}</div>}
 
-                                <WorkspaceNav
-                                        workspaces={workspaces}
-                                        currentWsId={currentWsId}
-                                        createWorkspace={createWorkspace}
-                                        deleteWorkspace={deleteWorkspace}
-                                        resetLocal={resetLocal}
-                                        testConnection={testConnection}
-                                />
+                               {user && (
+                                       <WorkspaceNav
+                                               workspaces={workspaces}
+                                               currentWsId={currentWsId}
+                                               createWorkspace={createWorkspace}
+                                               deleteWorkspace={deleteWorkspace}
+                                               resetLocal={resetLocal}
+                                               testConnection={testConnection}
+                                       />
+                               )}
 
-                                <Routes>
-                                        <Route
-                                                path="/workspace/:id"
-                                                element={
-                                                        <WorkspacePage
-                                                                paletteKey={paletteKey}
-                                                                setPaletteKey={setPaletteKey}
-                                                                setBanner={setBanner}
-                                                        />
-                                                }
-                                        />
-                                        <Route path="/profile/new" element={<CreateProfile />} />
-                                        <Route path="/profile/edit" element={<EditProfile />} />
-                                        <Route path="*" element={<div>Select a workspace</div>} />
-                                </Routes>
+                               <Routes>
+                                       <Route path="/login" element={<LoginPage />} />
+                                       {user && (
+                                               <>
+                                                       <Route
+                                                               path="/workspace/:id"
+                                                               element={
+                                                                       <WorkspacePage
+                                                                               paletteKey={paletteKey}
+                                                                               setPaletteKey={setPaletteKey}
+                                                                               setBanner={setBanner}
+                                                                       />
+                                                               }
+                                                       />
+                                                       <Route path="/profile/new" element={<CreateProfile />} />
+                                                       <Route path="/profile/edit" element={<EditProfile />} />
+                                                       <Route path="*" element={<div>Select a workspace</div>} />
+                                               </>
+                                       )}
+                               </Routes>
                         </div>
                 </div>
         );
