@@ -100,7 +100,11 @@ const currentWsId = location.pathname.startsWith("/workspace/")
         : "";
 
        useEffect(() => {
-               if (!user && location.pathname !== "/login") {
+               if (
+                       !user &&
+                       location.pathname !== "/login" &&
+                       location.pathname !== "/profile/new"
+               ) {
                        navigate("/login");
                }
        }, [user, location.pathname, navigate]);
