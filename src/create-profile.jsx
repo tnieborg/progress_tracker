@@ -28,32 +28,34 @@ export default function CreateProfile() {
         return (
                 <div className="profile-page">
                         <Card title="Create Profile" right={null}>
-                                <input
-                                        className="auth-input"
-                                        type="text"
-                                        placeholder="Display Name"
-                                        value={displayName}
-                                        onChange={(e) => setDisplayName(e.target.value)}
-                                />
-                                <input
-                                        className="auth-input"
-                                        type="email"
-                                        placeholder="Email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                />
-                                <input
-                                        className="auth-input"
-                                        type="password"
-                                        placeholder="Password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                />
-                                <Button onClick={handleCreate}>Create Account</Button>
-                                {error && <div className="auth-error">{error}</div>}
-                                <Link to="/" className="auth-link">
-                                        Back
-                                </Link>
+                                <div className="auth-grid">
+                                        <input
+                                                className="auth-input"
+                                                type="text"
+                                                placeholder="Display Name"
+                                                value={displayName}
+                                                onChange={(e) => setDisplayName(e.target.value)}
+                                        />
+                                        <input
+                                                className="auth-input"
+                                                type="email"
+                                                placeholder="Email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                        />
+                                        <input
+                                                className="auth-input"
+                                                type="password"
+                                                placeholder="Password"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                        />
+                                        <Button onClick={handleCreate}>Create Account</Button>
+                                        {error && <div className="auth-error">{error}</div>}
+                                        <Link to="/login" className="auth-link">
+                                                Back
+                                        </Link>
+                                </div>
                         </Card>
                 </div>
         );

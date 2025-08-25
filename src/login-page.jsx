@@ -38,26 +38,28 @@ export default function LoginPage() {
         return (
                 <div className="profile-page">
                         <Card title="Login" right={null}>
-                                <input
-                                        className="auth-input"
-                                        type="email"
-                                        placeholder="Email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                />
-                                <input
-                                        className="auth-input"
-                                        type="password"
-                                        placeholder="Password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                />
-                                <Button onClick={handleEmailSignIn}>Login</Button>
-                                <Button onClick={handleGoogleSignIn}>Sign in with Google</Button>
-                                <Link to="/profile/new" className="auth-link">
-                                        Create account
-                                </Link>
-                                {error && <div className="auth-error">{error}</div>}
+                                <div className="auth-grid">
+                                        <input
+                                                className="auth-input"
+                                                type="email"
+                                                placeholder="Email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                        />
+                                        <input
+                                                className="auth-input"
+                                                type="password"
+                                                placeholder="Password"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                        />
+                                        <Button onClick={handleEmailSignIn}>Login</Button>
+                                        <Button onClick={handleGoogleSignIn}>Sign in with Google</Button>
+                                        <Link to="/profile/new" className="auth-link">
+                                                Create account
+                                        </Link>
+                                        {error && <div className="auth-error">{error}</div>}
+                                </div>
                         </Card>
                 </div>
         );

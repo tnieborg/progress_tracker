@@ -261,6 +261,7 @@ const currentWsId = location.pathname.startsWith("/workspace/")
 
                                <Routes>
                                        <Route path="/login" element={<LoginPage />} />
+                                       <Route path="/profile/new" element={<CreateProfile />} />
                                        {user && (
                                                <>
                                                        <Route
@@ -273,7 +274,6 @@ const currentWsId = location.pathname.startsWith("/workspace/")
                                                                        />
                                                                }
                                                        />
-                                                       <Route path="/profile/new" element={<CreateProfile />} />
                                                        <Route path="/profile/edit" element={<EditProfile />} />
                                                        <Route path="*" element={<div>Select a workspace</div>} />
                                                </>
