@@ -4,18 +4,18 @@ import "../ui/ui.css";
 export default function AddPerson({ onAdd, disabled }) {
         const [name, setName] = useState("");
         const [email, setEmail] = useState("");
-        const [status, setStatus] = useState("watching");
+        const [role, setRole] = useState("collaborator");
 
         const handleSubmit = () => {
                 const n = name.trim();
                 const e = email.trim().toLowerCase();
                 if (!e) return;
-                const payload = { email: e, status };
+                const payload = { email: e, role };
                 if (n) payload.name = n;
                 onAdd(payload);
                 setName("");
                 setEmail("");
-                setStatus("watching");
+                setRole("collaborator");
         };
 
         return (
@@ -44,15 +44,15 @@ export default function AddPerson({ onAdd, disabled }) {
                         />
                         <select
                                 disabled={disabled}
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value)}
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
                                 onKeyDown={(e) => {
                                         if (e.key === "Enter") handleSubmit();
                                 }}
                         >
-                                <option value="watching">watching</option>
-                                <option value="ongoing">ongoing</option>
-                                <option value="completed">completed</option>
+                                <option value="admin">admin</option>
+                                <option value="editor">editor</option>
+                                <option value="collaborator">collaborator</option>
                         </select>
                         <button onClick={handleSubmit} disabled={disabled}>
                                 Add

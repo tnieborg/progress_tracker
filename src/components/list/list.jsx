@@ -11,6 +11,8 @@ export default function List({
         onDelete,
         paletteKey,
         readOnly,
+        canAdd = true,
+        canDelete = true,
         computeDerivedPercent = () => ({ percent: 0, count: 0 }),
         onSelectItem,
         selectedId,
@@ -45,7 +47,7 @@ export default function List({
                                                                 <span>{item.name}</span>
                                                                 <div className="list-actions">
                                                                         <div className="list-value">{derived}%</div>
-                                                                        {!readOnly && (
+                                                                        {!readOnly && canDelete && (
                                                                                 <button
                                                                                         onClick={() => onDelete(item.id)}
                                                                                         className="delete-button"
@@ -74,7 +76,7 @@ export default function List({
                                                                         <option value="doing">Doing</option>
                                                                         <option value="done">Done</option>
                                                                 </select>
-                                                                {!readOnly && (
+                                                                {!readOnly && canDelete && (
                                                                         <button
                                                                                 onClick={() => onDelete(item.id)}
                                                                                 className="delete-button"
@@ -93,19 +95,19 @@ export default function List({
                                                                 </span>
                                                                 <select
                                                                         className="status-select"
-                                                                        value={item.status || "watching"}
+                                                                        value={item.role || "collaborator"}
                                                                         onChange={(e) =>
                                                                                 onUpdate(item.id, {
-                                                                                        status: e.target.value,
+                                                                                        role: e.target.value,
                                                                                 })
                                                                         }
-                                                                        disabled={readOnly}
+                                                                        disabled={readOnly || item.role === "owner"}
                                                                 >
-                                                                        <option value="watching">watching</option>
-                                                                        <option value="ongoing">ongoing</option>
-                                                                        <option value="completed">completed</option>
+                                                                        <option value="admin">admin</option>
+                                                                        <option value="editor">editor</option>
+                                                                        <option value="collaborator">collaborator</option>
                                                                 </select>
-                                                                {!readOnly && (
+                                                                {!readOnly && canDelete && item.role !== "owner" && (
                                                                         <button
                                                                                 onClick={() => onDelete(item.id)}
                                                                                 className="delete-button"
@@ -118,7 +120,7 @@ export default function List({
                                         </div>
                                 );
                         })}
-                        {!readOnly && type !== "people" && (
+                        {!readOnly && canAdd && type !== "people" && (
                                 <AddRow
                                         type={type}
                                         placeholder={

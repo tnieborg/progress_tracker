@@ -24,9 +24,19 @@ import LoginPage from "./login-page";
 import { Card, Button } from "./components/ui/ui";
 import "./App.css";
 
-function WorkspaceNav({ workspaces, currentWsId, createWorkspace, deleteWorkspace, resetLocal, testConnection }) {
+function WorkspaceNav({
+        workspaces,
+        currentWsId,
+        currentUser,
+        createWorkspace,
+        deleteWorkspace,
+        resetLocal,
+        testConnection,
+}) {
         const [name, setName] = useState("");
         const navigate = useNavigate();
+        const current = workspaces.find((w) => w.id === currentWsId);
+        const role = current?.members?.[currentUser?.uid];
         return (
                 <div className="workspace-nav">
                         <Card title="Workspaces" right={null}>
@@ -54,7 +64,7 @@ function WorkspaceNav({ workspaces, currentWsId, createWorkspace, deleteWorkspac
                                                                 deleteWorkspace(currentWsId);
                                                         }
                                                 }}
-                                                disabled={!currentWsId}
+                                                disabled={!currentWsId || role !== "owner"}
                                         >
                                                 Delete workspace
                                         </Button>
@@ -186,6 +196,16 @@ const currentWsId = location.pathname.startsWith("/workspace/")
                                 memberIds: [uid],
                                 paletteKey: "royalViolet",
                         });
+                        await setDoc(
+                                doc(db, "workspaces", d.id, "people", uid),
+                                {
+                                        uid,
+                                        email: auth.currentUser.email?.toLowerCase() || "",
+                                        name: auth.currentUser.displayName || "",
+                                        role: "owner",
+                                        createdAt: serverTimestamp(),
+                                },
+                        );
                         setWorkspaces((prev) =>
                                 prev.map((w) => (w.id === tempId ? { ...w, id: d.id } : w)),
                         );
@@ -278,6 +298,7 @@ const currentWsId = location.pathname.startsWith("/workspace/")
                                        <WorkspaceNav
                                                workspaces={workspaces}
                                                currentWsId={currentWsId}
+                                               currentUser={user}
                                                createWorkspace={createWorkspace}
                                                deleteWorkspace={deleteWorkspace}
                                                resetLocal={resetLocal}

@@ -11,9 +11,12 @@ import {
         query,
         where,
         getDocs,
+        getDoc,
         arrayUnion,
+        arrayRemove,
+        deleteField,
 } from "firebase/firestore";
-import { db } from "./firebase";
+import { db, auth } from "./firebase";
 import ProjectsOverview from "./components/projects-overview/projects-overview";
 import PeopleOverview from "./components/people-overview/people-overview";
 import List from "./components/list/list";
@@ -25,6 +28,7 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
         const [people, setPeople] = useState([]);
         const [projectGoals, setProjectGoals] = useState({});
         const [selectedProjectId, setSelectedProjectId] = useState("");
+        const [role, setRole] = useState("collaborator");
 
         useEffect(() => {
                 if (!wsId) {
@@ -37,6 +41,9 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                 const unsubWs = onSnapshot(base, (snap) => {
                         const data = snap.data();
                         if (data?.paletteKey) setPaletteKey(data.paletteKey);
+                        if (data?.members && auth.currentUser) {
+                                setRole(data.members[auth.currentUser.uid] || "collaborator");
+                        }
                 });
                 const unsubProjects = onSnapshot(collection(base, "projects"), (snap) =>
                         setProjects(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
@@ -65,8 +72,6 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                 return () => unsubs.forEach((u) => u());
         }, [wsId, projects]);
 
-        const readOnly = !wsId;
-
         const getColRef = (colName) => {
                 if (!wsId) return null;
                 return collection(db, "workspaces", wsId, colName);
@@ -76,6 +81,21 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                 if (!wsId || !projectId) return null;
                 return collection(db, "workspaces", wsId, "projects", projectId, "goals");
         };
+
+        const isOwner = role === "owner";
+        const isAdmin = role === "admin";
+        const isEditor = role === "editor";
+
+        const canManageUsers = isOwner || isAdmin;
+        const canAddProject = isOwner || isAdmin;
+        const canDeleteProject = isOwner || isAdmin;
+        const canAddGoal = isOwner || isAdmin || isEditor;
+        const canDeleteGoal = isOwner || isAdmin || isEditor;
+        const canEditGoal = canAddGoal || role === "collaborator";
+
+        const projectReadOnly = !wsId || !(canAddProject || canDeleteProject);
+        const goalReadOnly = !wsId || !canEditGoal;
+        const peopleReadOnly = !wsId || !canManageUsers;
 
         async function addItem(colName, item) {
                 const ref = getColRef(colName);
@@ -96,15 +116,17 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                         return "";
                                 }
                                 const uid = snap.docs[0].id;
+                                const role = item.role || "collaborator";
                                 const wsRef = doc(db, "workspaces", wsId);
                                 await updateDoc(wsRef, {
-                                        [`members.${uid}`]: "editor",
+                                        [`members.${uid}`]: role,
                                         memberIds: arrayUnion(uid),
                                 });
                                 const d = await addDoc(ref, {
                                         ...item,
                                         email,
                                         uid,
+                                        role,
                                         createdAt: serverTimestamp(),
                                 });
                                 return d.id;
@@ -128,6 +150,12 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                         return;
                 }
                 try {
+                        if (colName === "people" && patch.role) {
+                                const snap = await getDoc(doc(ref, id));
+                                const uid = snap.data().uid;
+                                const wsRef = doc(db, "workspaces", wsId);
+                                await updateDoc(wsRef, { [`members.${uid}`]: patch.role });
+                        }
                         await updateDoc(doc(ref, id), patch);
                 } catch (err) {
                         if (err.code !== "not-found") {
@@ -142,6 +170,15 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                         return;
                 }
                 try {
+                        if (colName === "people") {
+                                const snap = await getDoc(doc(ref, id));
+                                const uid = snap.data().uid;
+                                const wsRef = doc(db, "workspaces", wsId);
+                                await updateDoc(wsRef, {
+                                        [`members.${uid}`]: deleteField(),
+                                        memberIds: arrayRemove(uid),
+                                });
+                        }
                         await deleteDoc(doc(ref, id));
                 } catch (err) {
                         setBanner(`Delete failed: ${err.message}`);
@@ -221,7 +258,9 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                         onAdd={(item) => addItem("projects", item)}
                                         onUpdate={(id, patch) => updateItem("projects", id, patch)}
                                         onDelete={(id) => deleteItem("projects", id)}
-                                        readOnly={readOnly}
+                                        readOnly={projectReadOnly}
+                                        canAdd={canAddProject}
+                                        canDelete={canDeleteProject}
                                         computeDerivedPercent={computeDerivedPercent}
                                         selectedId={selectedProjectId}
                                         onSelectItem={(id) =>
@@ -239,7 +278,9 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                                 onAdd={(item) => addGoalToProject(selectedProjectId, item)}
                                                 onUpdate={(id, patch) => updateGoal(selectedProjectId, id, patch)}
                                                 onDelete={(id) => deleteGoal(selectedProjectId, id)}
-                                                readOnly={readOnly}
+                                                readOnly={goalReadOnly}
+                                                canAdd={canAddGoal}
+                                                canDelete={canDeleteGoal}
                                         />
                                 ) : (
                                         <Card title="Goals">
@@ -253,7 +294,9 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                         onAdd={(item) => addItem("people", item)}
                                         onUpdate={(id, patch) => updateItem("people", id, patch)}
                                         onDelete={(id) => deleteItem("people", id)}
-                                        readOnly={readOnly}
+                                        readOnly={peopleReadOnly}
+                                        canAdd={canManageUsers}
+                                        canDelete={canManageUsers}
                                 />
                         </div>
 
