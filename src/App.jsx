@@ -110,6 +110,12 @@ const currentWsId = location.pathname.startsWith("/workspace/")
        }, [user, location.pathname, navigate]);
 
        useEffect(() => {
+               if (user && location.pathname === "/login") {
+                       navigate("/");
+               }
+       }, [user, location.pathname, navigate]);
+
+       useEffect(() => {
                if (!user) {
                        setWorkspaces([]);
                         return;

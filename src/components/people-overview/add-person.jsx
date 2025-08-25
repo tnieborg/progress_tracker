@@ -9,8 +9,10 @@ export default function AddPerson({ onAdd, disabled }) {
         const handleSubmit = () => {
                 const n = name.trim();
                 const e = email.trim();
-                if (!n || !e) return;
-                onAdd({ name: n, email: e, status });
+                if (!e) return;
+                const payload = { email: e, status };
+                if (n) payload.name = n;
+                onAdd(payload);
                 setName("");
                 setEmail("");
                 setStatus("watching");
@@ -28,7 +30,7 @@ export default function AddPerson({ onAdd, disabled }) {
                                 onKeyDown={(e) => {
                                         if (e.key === "Enter") handleSubmit();
                                 }}
-                                placeholder="Name"
+                                placeholder="Name (optional)"
                         />
                         <input
                                 disabled={disabled}

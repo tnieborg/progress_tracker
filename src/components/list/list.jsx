@@ -88,10 +88,8 @@ export default function List({
                                                 {isPeople && (
                                                         <>
                                                                 <span>
-                                                                        {item.name}
-                                                                        {item.email
-                                                                                ? ` (${item.email})`
-                                                                                : ""}
+                                                                        {item.name || item.email}
+                                                                        {item.name && item.email ? ` (${item.email})` : ""}
                                                                 </span>
                                                                 <select
                                                                         className="status-select"
