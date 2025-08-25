@@ -16,11 +16,12 @@ import {
         arrayRemove,
         deleteField,
 } from "firebase/firestore";
-import { db, auth } from "./firebase";
-import ProjectsOverview from "./components/projects-overview/projects-overview";
-import PeopleOverview from "./components/people-overview/people-overview";
-import List from "./components/list/list";
-import { PALETTES, Card } from "./components/ui/ui";
+import { db, auth } from "../../firebase";
+import ProjectsOverview from "../../components/projects-overview/projects-overview";
+import PeopleOverview from "../../components/people-overview/people-overview";
+import List from "../../components/list/list";
+import { PALETTES, Card } from "../../components/ui/ui";
+import "./workspace.css";
 
 export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) {
         const { id: wsId } = useParams();
@@ -250,7 +251,7 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
         }, [projects, projectGoals]);
 
         return (
-                <>
+                <div className="workspace-page">
                         <div className="grid-wrap">
                                 <ProjectsOverview
                                         paletteKey={paletteKey}
@@ -305,7 +306,7 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                         Palette: <span>{PALETTES[paletteKey].name}</span>
                                 </small>
                         </div>
-                </>
+                </div>
         );
 }
 

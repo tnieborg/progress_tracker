@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "./firebase";
-import { Card, Button } from "./components/ui/ui";
+import { auth } from "../../firebase";
+import { Card, Button } from "../../components/ui/ui";
 import { useNavigate, Link } from "react-router-dom";
+import "./create-profile.css";
 
 export default function CreateProfile() {
         const [displayName, setDisplayName] = useState("");
@@ -14,7 +15,11 @@ export default function CreateProfile() {
         const handleCreate = async () => {
                 try {
                         setError("");
-                        const cred = await createUserWithEmailAndPassword(auth, email, password);
+                        const cred = await createUserWithEmailAndPassword(
+                                auth,
+                                email,
+                                password,
+                        );
                         if (displayName) {
                                 await updateProfile(cred.user, { displayName });
                         }

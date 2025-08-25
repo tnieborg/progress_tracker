@@ -38,16 +38,8 @@
 	align-items: center;
 }
 
-.auth-input {
-	background: transparent;
-	color: var(--text);
-	border: 1px solid var(--accent);
-	border-radius: 8px;
-	padding: 6px 8px;
-}
-
 .greeting {
-	opacity: 0.85;
+        opacity: 0.85;
 }
 
 .auth-error {

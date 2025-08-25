@@ -4,9 +4,10 @@ import {
         updateEmail,
         updatePassword,
 } from "firebase/auth";
-import { auth } from "./firebase";
-import { Card, Button } from "./components/ui/ui";
+import { auth } from "../../firebase";
+import { Card, Button } from "../../components/ui/ui";
 import { useNavigate } from "react-router-dom";
+import "./edit-profile.css";
 
 export default function EditProfile() {
         const user = auth.currentUser;
