@@ -111,6 +111,16 @@
         gap: 8px;
 }
 
+.mobile-workspace-create {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+}
+
+.auth-link {
+        color: var(--accent);
+}
+
 @media (max-width: 600px) {
         .header-controls {
                 display: none;

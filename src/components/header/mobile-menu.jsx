@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { PALETTES } from "../ui/ui";
+import { PALETTES, Button } from "../ui/ui";
 import AuthPanel from "./auth-panel";
 
 export default function MobileMenu({
@@ -11,8 +11,10 @@ export default function MobileMenu({
         provider,
         workspaces,
         currentWsId,
+        createWorkspace,
 }) {
         const [open, setOpen] = useState(false);
+        const [name, setName] = useState("");
         return (
                 <div className="mobile-menu-container">
                         <button
@@ -54,6 +56,25 @@ export default function MobileMenu({
                                                                 {w.name || "Untitled"}
                                                         </Link>
                                                 ))}
+                                        </div>
+                                        <div className="mobile-workspace-create">
+                                                <input
+                                                        className="workspace-bar-input"
+                                                        value={name}
+                                                        onChange={(e) => setName(e.target.value)}
+                                                        placeholder="New workspace name"
+                                                />
+                                                <Button
+                                                        onClick={async () => {
+                                                                const n = name.trim();
+                                                                if (!n) return;
+                                                                await createWorkspace(n);
+                                                                setName("");
+                                                                setOpen(false);
+                                                        }}
+                                                >
+                                                        Create
+                                                </Button>
                                         </div>
                                         <AuthPanel
                                                 user={user}

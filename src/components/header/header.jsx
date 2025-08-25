@@ -12,6 +12,7 @@ export default function Header({
         provider,
         workspaces,
         currentWsId,
+        createWorkspace,
 }) {
 	return (
 		<div className="header">
@@ -39,6 +40,7 @@ export default function Header({
                                 provider={provider}
                                 workspaces={workspaces}
                                 currentWsId={currentWsId}
+                                createWorkspace={createWorkspace}
                         />
                 </div>
         );

@@ -4,6 +4,7 @@ import {
         signInWithEmailAndPassword,
         signOut,
 } from "firebase/auth";
+import { Link } from "react-router-dom";
 import { Button } from "../ui/ui";
 
 export default function AuthPanel({ user, auth, provider }) {
@@ -46,6 +47,9 @@ export default function AuthPanel({ user, auth, provider }) {
                         {user ? (
                                 <>
                                         <span className="greeting">Hi, {user.displayName || user.email}</span>
+                                        <Link to="/profile/edit" className="auth-link">
+                                                Edit profile
+                                        </Link>
                                         <Button onClick={handleSignOut} subtle>
                                                 Sign out
                                         </Button>
@@ -68,6 +72,9 @@ export default function AuthPanel({ user, auth, provider }) {
                                         />
                                         <Button onClick={handleEmailSignIn}>Login</Button>
                                         <Button onClick={handleGoogleSignIn}>Google</Button>
+                                        <Link to="/profile/new" className="auth-link">
+                                                Create profile
+                                        </Link>
                                 </>
                         )}
                         {error && <span className="auth-error">{error}</span>}

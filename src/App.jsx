@@ -16,6 +16,8 @@ import { Link, Routes, Route, useLocation, useNavigate } from "react-router-dom"
 import { db, auth, provider } from "./firebase";
 import Header from "./components/header/header";
 import WorkspacePage from "./workspace-page";
+import CreateProfile from "./create-profile";
+import EditProfile from "./edit-profile";
 import { Card, Button } from "./components/ui/ui";
 import "./App.css";
 
@@ -231,6 +233,7 @@ export default function App() {
                                         provider={provider}
                                         workspaces={workspaces}
                                         currentWsId={currentWsId}
+                                        createWorkspace={createWorkspace}
                                 />
 
                                 {banner && <div className="banner">{banner}</div>}
@@ -255,6 +258,8 @@ export default function App() {
                                                         />
                                                 }
                                         />
+                                        <Route path="/profile/new" element={<CreateProfile />} />
+                                        <Route path="/profile/edit" element={<EditProfile />} />
                                         <Route path="*" element={<div>Select a workspace</div>} />
                                 </Routes>
                         </div>

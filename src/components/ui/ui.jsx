@@ -43,15 +43,18 @@ export function AddRow({ type, onAdd, disabled, placeholder }) {
 	};
 	return (
 		<div className="add-row">
-			<input
-				disabled={disabled}
-				value={text}
-				onChange={(e) => setText(e.target.value)}
-				placeholder={placeholder}
-			/>
-			<button onClick={handleSubmit} disabled={disabled}>
-				Add
-			</button>
-		</div>
+                        <input
+                                disabled={disabled}
+                                value={text}
+                                onChange={(e) => setText(e.target.value)}
+                                onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleSubmit();
+                                }}
+                                placeholder={placeholder}
+                        />
+                        <button onClick={handleSubmit} disabled={disabled}>
+                                Add
+                        </button>
+                </div>
 	);
 }
