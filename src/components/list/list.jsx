@@ -20,6 +20,7 @@ export default function List({
         children,
 }) {
         const [editingId, setEditingId] = useState(null);
+        const [notesDraft, setNotesDraft] = useState({});
 
         return (
                 <Card
@@ -104,7 +105,7 @@ export default function List({
                                                                         </button>
                                                                 </div>
                                                                 {editingId === item.id && (
-                                                                        <div className="goal-details">
+                                                                <div className="goal-details">
                                                                                 <select
                                                                                         className="status-select"
                                                                                         value={item.assigneeUid || ""}
@@ -134,8 +135,23 @@ export default function List({
                                                                                 >
                                                                                         <option value="todo">To do</option>
                                                                                         <option value="doing">Doing</option>
-                                                                                        <option value="done">Done</option>
+                                                                                <option value="done">Done</option>
                                                                                 </select>
+                                                                                <textarea
+                                                                                        className="goal-notes"
+                                                                                        value={notesDraft[item.id] !== undefined ? notesDraft[item.id] : item.notes || ""}
+                                                                                        onChange={(e) =>
+                                                                                                setNotesDraft({ ...notesDraft, [item.id]: e.target.value })
+                                                                                        }
+                                                                                        onBlur={() => {
+                                                                                                const val = notesDraft[item.id];
+                                                                                                if (val !== undefined && val !== item.notes) {
+                                                                                                        onUpdate(item.id, { notes: val });
+                                                                                                }
+                                                                                        }}
+                                                                                        placeholder="Add notes"
+                                                                                        disabled={readOnly}
+                                                                                />
                                                                                 {!readOnly && canDelete && (
                                                                                         <button
                                                                                                 onClick={() => onDelete(item.id)}

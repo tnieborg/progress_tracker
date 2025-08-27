@@ -196,6 +196,7 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                         const d = await addDoc(ref, {
                                 ...goal,
                                 assigneeUid: goal.assigneeUid || "",
+                                notes: goal.notes || "",
                                 createdAt: serverTimestamp(),
                         });
                         return d.id;

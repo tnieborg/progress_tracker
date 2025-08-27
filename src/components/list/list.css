@@ -49,6 +49,17 @@
         gap: 8px;
 }
 
+.goal-notes {
+        width: 100%;
+        min-height: 60px;
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        padding: 4px 6px;
+        resize: vertical;
+}
+
 .goal-toggle {
         background: transparent;
         color: var(--accent);
