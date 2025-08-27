@@ -4,6 +4,11 @@
         gap: 24px;
 }
 
+.workspace-presence {
+        display: flex;
+        justify-content: flex-end;
+}
+
 .projects-view {
         display: flex;
         flex-direction: column;

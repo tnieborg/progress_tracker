@@ -1,0 +1,32 @@
+.presence-list {
+        display: flex;
+        gap: 4px;
+}
+
+.presence-item {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: bold;
+        overflow: hidden;
+}
+
+.presence-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+}
+
+@media screen and (max-width: 768px) {
+        .presence-item {
+                width: 24px;
+                height: 24px;
+                font-size: 12px;
+        }
+}

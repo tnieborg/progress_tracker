@@ -5,6 +5,7 @@ import {
         addDoc,
         updateDoc,
         deleteDoc,
+        setDoc,
         doc,
         onSnapshot,
         serverTimestamp,
@@ -22,6 +23,7 @@ import PeopleOverview from "../../components/people-overview/people-overview";
 import List from "../../components/list/list";
 import Tabs from "../../components/tabs/tabs";
 import { PALETTES, Card } from "../../components/ui/ui";
+import PresenceList from "../../components/presence-list/presence-list";
 import "./workspace.css";
 
 export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) {
@@ -32,6 +34,7 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
         const [selectedProjectId, setSelectedProjectId] = useState("");
         const [activeTab, setActiveTab] = useState("projects");
         const [role, setRole] = useState("collaborator");
+        const [activeUsers, setActiveUsers] = useState([]);
 
         useEffect(() => {
                 if (!wsId) {
@@ -60,6 +63,32 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                         unsubPeople();
                 };
         }, [wsId, setPaletteKey]);
+
+        useEffect(() => {
+                if (!wsId) return;
+                const base = doc(db, "workspaces", wsId);
+                const unsub = onSnapshot(collection(base, "presence"), (snap) => {
+                        setActiveUsers(
+                                snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+                        );
+                });
+                return () => unsub();
+        }, [wsId, auth.currentUser?.uid]);
+
+        useEffect(() => {
+                if (!wsId || !auth.currentUser) return;
+                const uid = auth.currentUser.uid;
+                const presenceRef = doc(db, "workspaces", wsId, "presence", uid);
+                setDoc(presenceRef, {
+                        uid,
+                        name: auth.currentUser.displayName || auth.currentUser.email || "",
+                        photoURL: auth.currentUser.photoURL || "",
+                        lastActive: serverTimestamp(),
+                });
+                return () => {
+                        deleteDoc(presenceRef).catch(() => {});
+                };
+        }, [wsId]);
 
         useEffect(() => {
                 if (!wsId) return;
@@ -259,6 +288,9 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
 
         return (
                 <div className="workspace-page">
+                        <div className="workspace-presence">
+                                <PresenceList users={activeUsers} />
+                        </div>
 
                         <Tabs
                                 activeTab={activeTab}
