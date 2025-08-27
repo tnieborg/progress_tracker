@@ -2,10 +2,8 @@
 	opacity: 0.7;
 }
 
+/* Base row styling */
 .list-row {
-        display: grid;
-        gap: 12px;
-        align-items: center;
         padding: 10px 0;
         border-bottom: 1px dashed var(--accent);
 }
@@ -15,16 +13,49 @@
         color: #fff;
 }
 
+/* Projects and people keep a grid layout */
+.list-row.projects,
+.list-row.people {
+        display: grid;
+        gap: 12px;
+        align-items: center;
+}
+
 .list-row.projects {
         grid-template-columns: 1fr auto;
 }
 
-.list-row.goals {
-        grid-template-columns: 1fr minmax(120px, 160px) minmax(120px, 160px) auto;
-}
-
 .list-row.people {
         grid-template-columns: 1fr minmax(120px, 160px) auto;
+}
+
+/* Goals stack vertically to avoid cramped layout */
+.list-row.goals {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+}
+
+.goal-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+}
+
+.goal-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+}
+
+.goal-toggle {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        padding: 4px 8px;
+        cursor: pointer;
 }
 
 .list-value {

@@ -37,23 +37,21 @@
 }
 
 
+
 .add-row {
-        display: grid;
-        grid-template-columns: 1fr auto;
+        display: flex;
+        flex-wrap: wrap;
         gap: 8px;
         margin-top: 12px;
 }
 
-.add-row-goal {
-        grid-template-columns: 1fr minmax(120px, 160px) auto;
-}
-
 .add-row input {
-	background: transparent;
-	color: inherit;
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	border-radius: 8px;
-	padding: 8px 10px;
+        background: transparent;
+        color: inherit;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 8px 10px;
+        flex: 1 1 160px;
 }
 
 .add-row button {
@@ -68,6 +66,7 @@
         border: 1px solid var(--accent);
         border-radius: 8px;
         padding: 4px 6px;
+        flex: 0 1 160px;
 }
 
 .add-row-goal select option {
