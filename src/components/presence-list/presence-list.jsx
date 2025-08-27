@@ -2,26 +2,17 @@ import React from "react";
 import "./presence-list.css";
 
 export default function PresenceList({ users = [] }) {
-        if (!users.length) return null;
         return (
-                <div className="presence-list">
-                        {users.map((u) => (
-                                <div
-                                        key={u.uid || u.id}
-                                        className="presence-item"
-                                        title={u.name || u.email || ""}
-                                >
-                                        {u.photoURL ? (
-                                                <img src={u.photoURL} alt={u.name || u.email || "user"} />
-                                        ) : (
-                                                <span>
-                                                        {(u.name || u.email || "?")
-                                                                .slice(0, 1)
-                                                                .toUpperCase()}
-                                                </span>
-                                        )}
-                                </div>
-                        ))}
+                <div className="presence-list" aria-label="Active users">
+                        <svg
+                                className="presence-icon"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                aria-hidden="true"
+                        >
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                        <span className="presence-count">{users.length}</span>
                 </div>
         );
 }
