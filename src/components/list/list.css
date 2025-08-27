@@ -49,6 +49,12 @@
         gap: 8px;
 }
 
+.goal-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+}
+
 .goal-notes {
         width: 100%;
         min-height: 60px;
@@ -67,6 +73,24 @@
         border-radius: 8px;
         padding: 4px 8px;
         cursor: pointer;
+}
+
+.note-toggle {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        padding: 4px 8px;
+        cursor: pointer;
+}
+
+.goal-note-text {
+        width: 100%;
+        background: var(--accent-subtle);
+        color: var(--accent);
+        border-radius: 8px;
+        padding: 4px 6px;
+        word-wrap: break-word;
 }
 
 .list-value {

@@ -21,6 +21,14 @@ export default function List({
 }) {
         const [editingId, setEditingId] = useState(null);
         const [notesDraft, setNotesDraft] = useState({});
+        const [openNotes, setOpenNotes] = useState({});
+
+        const saveNotes = (id, item) => {
+                const draft = notesDraft[id];
+                if (draft !== undefined && draft !== item.notes) {
+                        onUpdate(id, { notes: draft });
+                }
+        };
 
         return (
                 <Card
@@ -90,22 +98,42 @@ export default function List({
                                                                                         );
                                                                                 })()}
                                                                         </span>
-                                                                        <button
-                                                                                className="goal-toggle"
-                                                                                onClick={(e) => {
-                                                                                        e.stopPropagation();
-                                                                                        setEditingId(
-                                                                                                editingId === item.id
-                                                                                                        ? null
-                                                                                                        : item.id,
-                                                                                        );
-                                                                                }}
-                                                                        >
-                                                                                {editingId === item.id ? "Close" : "Edit"}
-                                                                        </button>
+                                                                        <div className="goal-actions">
+                                                                                {item.notes && (
+                                                                                        <button
+                                                                                                className="note-toggle"
+                                                                                                onClick={(e) => {
+                                                                                                        e.stopPropagation();
+                                                                                                        setOpenNotes((prev) => ({
+                                                                                                                ...prev,
+                                                                                                                [item.id]: !prev[item.id],
+                                                                                                        }));
+                                                                                                }}
+                                                                                        >
+                                                                                                {openNotes[item.id] ? "Hide note" : "Note"}
+                                                                                        </button>
+                                                                                )}
+                                                                                <button
+                                                                                        className="goal-toggle"
+                                                                                        onClick={(e) => {
+                                                                                                e.stopPropagation();
+                                                                                                if (editingId === item.id) {
+                                                                                                        saveNotes(item.id, item);
+                                                                                                        setEditingId(null);
+                                                                                                } else {
+                                                                                                        setEditingId(item.id);
+                                                                                                }
+                                                                                        }}
+                                                                                >
+                                                                                        {editingId === item.id ? "Close" : "Edit"}
+                                                                                </button>
+                                                                        </div>
                                                                 </div>
+                                                                {openNotes[item.id] && item.notes && editingId !== item.id && (
+                                                                        <div className="goal-note-text">{item.notes}</div>
+                                                                )}
                                                                 {editingId === item.id && (
-                                                                <div className="goal-details">
+                                                                        <div className="goal-details">
                                                                                 <select
                                                                                         className="status-select"
                                                                                         value={item.assigneeUid || ""}
@@ -135,20 +163,22 @@ export default function List({
                                                                                 >
                                                                                         <option value="todo">To do</option>
                                                                                         <option value="doing">Doing</option>
-                                                                                <option value="done">Done</option>
+                                                                                        <option value="done">Done</option>
                                                                                 </select>
                                                                                 <textarea
                                                                                         className="goal-notes"
-                                                                                        value={notesDraft[item.id] !== undefined ? notesDraft[item.id] : item.notes || ""}
-                                                                                        onChange={(e) =>
-                                                                                                setNotesDraft({ ...notesDraft, [item.id]: e.target.value })
+                                                                                        value={
+                                                                                                notesDraft[item.id] !== undefined
+                                                                                                        ? notesDraft[item.id]
+                                                                                                        : item.notes || ""
                                                                                         }
-                                                                                        onBlur={() => {
-                                                                                                const val = notesDraft[item.id];
-                                                                                                if (val !== undefined && val !== item.notes) {
-                                                                                                        onUpdate(item.id, { notes: val });
-                                                                                                }
-                                                                                        }}
+                                                                                        onChange={(e) =>
+                                                                                                setNotesDraft({
+                                                                                                        ...notesDraft,
+                                                                                                        [item.id]: e.target.value,
+                                                                                                })
+                                                                                        }
+                                                                                        onBlur={() => saveNotes(item.id, item)}
                                                                                         placeholder="Add notes"
                                                                                         disabled={readOnly}
                                                                                 />
@@ -162,8 +192,8 @@ export default function List({
                                                                                 )}
                                                                         </div>
                                                                 )}
-                                                        </>
-                                                )}
+                                                         </>
+                                                 )}
 
                                                 {isPeople && (
                                                         <>
