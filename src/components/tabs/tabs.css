@@ -1,0 +1,38 @@
+.tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+}
+
+.tab-headers {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+}
+
+.tab-header {
+        flex: 1;
+        padding: 8px 12px;
+        background: transparent;
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        cursor: pointer;
+        color: var(--text);
+}
+
+.tab-header.active {
+        background: var(--accent);
+        color: #fff;
+}
+
+.tab-content {
+        width: 100%;
+}
+
+.tab-pane {
+        display: none;
+}
+
+.tab-pane.active {
+        display: block;
+}
