@@ -16,6 +16,7 @@ export default function List({
         computeDerivedPercent = () => ({ percent: 0, count: 0 }),
         onSelectItem,
         selectedId,
+        people = [],
         children,
 }) {
         return (
@@ -61,7 +62,52 @@ export default function List({
 
                                                 {isGoals && (
                                                         <>
-                                                                <span>{item.title}</span>
+                                                                <span>
+                                                                        {item.title}
+                                                                        {(() => {
+                                                                                const assignee = people.find(
+                                                                                        (p) =>
+                                                                                                p.uid ===
+                                                                                                item.assigneeUid,
+                                                                                );
+                                                                                if (!assignee) return null;
+                                                                                const label =
+                                                                                        assignee.name ||
+                                                                                        (assignee.email || "")
+                                                                                                .split("@")[0]
+                                                                                                .split(" ")
+                                                                                                .map((s) => s[0])
+                                                                                                .join("")
+                                                                                                .toUpperCase();
+                                                                                return (
+                                                                                        <span className="goal-assignee">
+                                                                                                {label}
+                                                                                        </span>
+                                                                                );
+                                                                        })()}
+                                                                </span>
+                                                                <select
+                                                                        className="status-select"
+                                                                        value={item.assigneeUid || ""}
+                                                                        onChange={(e) =>
+                                                                                onUpdate(item.id, {
+                                                                                        assigneeUid:
+                                                                                                e.target
+                                                                                                        .value,
+                                                                                })
+                                                                        }
+                                                                        disabled={readOnly}
+                                                                >
+                                                                        <option value="">Unassigned</option>
+                                                                        {people.map((p) => (
+                                                                                <option
+                                                                                        key={p.uid}
+                                                                                        value={p.uid}
+                                                                                >
+                                                                                        {p.name || p.email}
+                                                                                </option>
+                                                                        ))}
+                                                                </select>
                                                                 <select
                                                                         className="status-select"
                                                                         value={item.status || "todo"}
@@ -130,6 +176,7 @@ export default function List({
                                         }
                                         disabled={readOnly}
                                         onAdd={onAdd}
+                                        people={people}
                                 />
                         )}
 

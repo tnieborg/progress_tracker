@@ -19,7 +19,10 @@
         grid-template-columns: 1fr auto;
 }
 
-.list-row.goals,
+.list-row.goals {
+        grid-template-columns: 1fr minmax(120px, 160px) minmax(120px, 160px) auto;
+}
+
 .list-row.people {
         grid-template-columns: 1fr minmax(120px, 160px) auto;
 }
@@ -54,6 +57,12 @@
         border: 1px solid #ff4d4f;
         border-radius: 8px;
         padding: 4px 8px;
+}
+
+.goal-assignee {
+        margin-left: 8px;
+        font-size: 0.85em;
+        opacity: 0.8;
 }
 
 .list-row.goal-done span {

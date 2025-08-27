@@ -36,11 +36,16 @@
 	opacity: 0.6;
 }
 
+
 .add-row {
-	display: grid;
-	grid-template-columns: 1fr auto;
-	gap: 8px;
-	margin-top: 12px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        margin-top: 12px;
+}
+
+.add-row-goal {
+        grid-template-columns: 1fr minmax(120px, 160px) auto;
 }
 
 .add-row input {
@@ -52,7 +57,19 @@
 }
 
 .add-row button {
-	border-radius: 8px;
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 8px 10px;
+}
+
+.add-row-goal select {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        padding: 4px 6px;
+}
+
+.add-row-goal select option {
+        color: #000;
 }
