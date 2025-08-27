@@ -18,13 +18,16 @@ fail with *Missing or insufficient permissions*:
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function role(wsId) {
+      return get(/databases/$(database)/documents/workspaces/$(wsId))
+             .data.members[request.auth.uid];
+    }
 
     match /profiles/{uid} {
       allow read:  if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == uid;
     }
 
-    // --- Workspaces (top-level) ---
     match /workspaces/{wsId} {
       // Create: requester sets themselves as owner and sole member initially
       allow create: if request.auth != null
@@ -35,24 +38,31 @@ service cloud.firestore {
       allow read: if request.auth != null
         && request.auth.uid in resource.data.memberIds;
 
-      // UPDATE/DELETE can still use the members map
+      // Owners and admins can update workspace metadata
       allow update: if request.auth != null
-        && (resource.data.members[request.auth.uid] == "owner"
-            || resource.data.members[request.auth.uid] == "editor");
+        && role(wsId) in ["owner", "admin"];
 
+      // Only owners can delete the workspace
       allow delete: if request.auth != null
-        && resource.data.members[request.auth.uid] == "owner";
-    }
+        && role(wsId) == "owner";
 
-    // --- Subcollections under a workspace ---
-    match /workspaces/{wsId}/{document=**} {
-      function parentRole() {
-        return get(/databases/$(database)/documents/workspaces/$(wsId))
-               .data.members[request.auth.uid];
+      match /projects/{projectId} {
+        allow read: if request.auth != null && role(wsId) != null;
+        allow write: if request.auth != null && role(wsId) in ["owner", "admin"];
+
+        match /goals/{goalId} {
+          allow read: if request.auth != null && role(wsId) != null;
+          allow write: if request.auth != null && (
+            role(wsId) in ["owner", "admin", "editor"] ||
+            (role(wsId) == "collaborator" && request.resource.data.keys().hasOnly(["status"]))
+          );
+        }
       }
-      allow read:  if request.auth != null && parentRole() != null;
-      allow write: if request.auth != null
-                    && (parentRole() == "owner" || parentRole() == "editor");
+
+      match /people/{personId} {
+        allow read: if request.auth != null && role(wsId) != null;
+        allow write: if request.auth != null && role(wsId) in ["owner", "admin"];
+      }
     }
 
     match /{document=**} {
