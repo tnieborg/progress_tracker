@@ -1,0 +1,26 @@
+.presence-list {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #fff;
+}
+
+.presence-icon {
+        width: 24px;
+        height: 24px;
+}
+
+.presence-count {
+        font-size: 14px;
+        font-weight: bold;
+}
+
+@media screen and (max-width: 768px) {
+        .presence-icon {
+                width: 20px;
+                height: 20px;
+        }
+        .presence-count {
+                font-size: 12px;
+        }
+}
