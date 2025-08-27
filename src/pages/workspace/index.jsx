@@ -297,6 +297,7 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                                                                         canAdd={canAddGoal}
                                                                                         canDelete={canDeleteGoal}
                                                                                         people={people}
+                                                                                        userRole={role}
                                                                                 />
                                                                         ) : (
                                                                                 <Card title="Goals">

@@ -41,18 +41,19 @@ export default function AddPerson({ onAdd, disabled }) {
                                 placeholder="Email"
                                 type="email"
                         />
-                        <select
+                       <select
                                 disabled={disabled}
                                 value={role}
                                 onChange={(e) => setRole(e.target.value)}
                                 onKeyDown={(e) => {
                                         if (e.key === "Enter") handleSubmit();
                                 }}
-                        >
+                       >
+                                <option value="owner">owner</option>
                                 <option value="admin">admin</option>
                                 <option value="editor">editor</option>
                                 <option value="collaborator">collaborator</option>
-                        </select>
+                       </select>
                         <button onClick={handleSubmit} disabled={disabled}>
                                 Add
                         </button>

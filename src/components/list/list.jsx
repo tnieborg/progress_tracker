@@ -17,11 +17,13 @@ export default function List({
         onSelectItem,
         selectedId,
         people = [],
+        userRole = "collaborator",
         children,
 }) {
         const [editingId, setEditingId] = useState(null);
         const [notesDraft, setNotesDraft] = useState({});
         const [openNotes, setOpenNotes] = useState({});
+        const isCollaborator = userRole === "collaborator";
 
         const saveNotes = (id, item) => {
                 const draft = notesDraft[id];
@@ -142,7 +144,7 @@ export default function List({
                                                                                                         assigneeUid: e.target.value,
                                                                                                 })
                                                                                         }
-                                                                                        disabled={readOnly}
+                                                                                        disabled={readOnly || isCollaborator}
                                                                                 >
                                                                                         <option value="">Unassigned</option>
                                                                                         {people.map((p) => (
@@ -180,7 +182,7 @@ export default function List({
                                                                                         }
                                                                                         onBlur={() => saveNotes(item.id, item)}
                                                                                         placeholder="Add notes"
-                                                                                        disabled={readOnly}
+                                                                                        disabled={readOnly || isCollaborator}
                                                                                 />
                                                                                 {!readOnly && canDelete && (
                                                                                         <button
@@ -211,6 +213,7 @@ export default function List({
                                                                         }
                                                                         disabled={readOnly || item.role === "owner"}
                                                                 >
+                                                                        <option value="owner">owner</option>
                                                                         <option value="admin">admin</option>
                                                                         <option value="editor">editor</option>
                                                                         <option value="collaborator">collaborator</option>
