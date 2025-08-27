@@ -268,41 +268,45 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                                 id: "projects",
                                                 label: "Projects",
                                                 content: (
-                                                        <ProjectsOverview
-                                                                paletteKey={paletteKey}
-                                                                data={projects}
-                                                                onAdd={(item) => addItem("projects", item)}
-                                                                onUpdate={(id, patch) => updateItem("projects", id, patch)}
-                                                                onDelete={(id) => deleteItem("projects", id)}
-                                                                readOnly={projectReadOnly}
-                                                                canAdd={canAddProject}
-                                                                canDelete={canDeleteProject}
-                                                                computeDerivedPercent={computeDerivedPercent}
-                                                                selectedId={selectedProjectId}
-                                                                onSelectItem={(id) => setSelectedProjectId(id)}
-                                                        />
-                                                ),
-                                        },
-                                        {
-                                                id: "goals",
-                                                label: "Goals",
-                                                content: selectedProjectId ? (
-                                                        <List
-                                                                title="Goals"
-                                                                type="goals"
-                                                                data={projectGoals[selectedProjectId] || []}
-                                                                onAdd={(item) => addGoalToProject(selectedProjectId, item)}
-                                                                onUpdate={(id, patch) => updateGoal(selectedProjectId, id, patch)}
-                                                                onDelete={(id) => deleteGoal(selectedProjectId, id)}
-                                                                readOnly={goalReadOnly}
-                                                                canAdd={canAddGoal}
-                                                                canDelete={canDeleteGoal}
-                                                                people={people}
-                                                        />
-                                                ) : (
-                                                        <Card title="Goals">
-                                                                <div className="list-empty">Select a project to view goals</div>
-                                                        </Card>
+                                                        <div className="projects-view">
+                                                                <div className="projects-sidebar">
+                                                                        <ProjectsOverview
+                                                                                paletteKey={paletteKey}
+                                                                                data={projects}
+                                                                                onAdd={(item) => addItem("projects", item)}
+                                                                                onUpdate={(id, patch) => updateItem("projects", id, patch)}
+                                                                                onDelete={(id) => deleteItem("projects", id)}
+                                                                                readOnly={projectReadOnly}
+                                                                                canAdd={canAddProject}
+                                                                                canDelete={canDeleteProject}
+                                                                                computeDerivedPercent={computeDerivedPercent}
+                                                                                selectedId={selectedProjectId}
+                                                                                onSelectItem={(id) => setSelectedProjectId(id)}
+                                                                        />
+                                                                </div>
+                                                                <div className="goals-pane">
+                                                                        {selectedProjectId ? (
+                                                                                <List
+                                                                                        title="Goals"
+                                                                                        type="goals"
+                                                                                        data={projectGoals[selectedProjectId] || []}
+                                                                                        onAdd={(item) => addGoalToProject(selectedProjectId, item)}
+                                                                                        onUpdate={(id, patch) => updateGoal(selectedProjectId, id, patch)}
+                                                                                        onDelete={(id) => deleteGoal(selectedProjectId, id)}
+                                                                                        readOnly={goalReadOnly}
+                                                                                        canAdd={canAddGoal}
+                                                                                        canDelete={canDeleteGoal}
+                                                                                        people={people}
+                                                                                />
+                                                                        ) : (
+                                                                                <Card title="Goals">
+                                                                                        <div className="list-empty">
+                                                                                                Select a project to view goals
+                                                                                        </div>
+                                                                                </Card>
+                                                                        )}
+                                                                </div>
+                                                        </div>
                                                 ),
                                         },
                                         {

@@ -3,3 +3,26 @@
         flex-direction: column;
         gap: 24px;
 }
+
+.projects-view {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+}
+
+.projects-sidebar {
+        flex: 0 0 auto;
+}
+
+.goals-pane {
+        flex: 1;
+}
+
+@media (min-width: 640px) {
+        .projects-view {
+                flex-direction: row;
+        }
+        .projects-sidebar {
+                width: 260px;
+        }
+}
