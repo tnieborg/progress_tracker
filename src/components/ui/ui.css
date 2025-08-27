@@ -36,23 +36,39 @@
 	opacity: 0.6;
 }
 
+
+
 .add-row {
-	display: grid;
-	grid-template-columns: 1fr auto;
-	gap: 8px;
-	margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
 }
 
 .add-row input {
-	background: transparent;
-	color: inherit;
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	border-radius: 8px;
-	padding: 8px 10px;
+        background: transparent;
+        color: inherit;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 8px 10px;
+        flex: 1 1 160px;
 }
 
 .add-row button {
-	border-radius: 8px;
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 8px 10px;
+}
+
+.add-row-goal select {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        padding: 4px 6px;
+        flex: 0 1 160px;
+}
+
+.add-row-goal select option {
+        color: #000;
 }

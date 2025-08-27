@@ -31,17 +31,20 @@ export function Button({ children, onClick, subtle, disabled }) {
 	);
 }
 
-export function AddRow({ type, onAdd, disabled, placeholder }) {
-	const [text, setText] = useState("");
-	const handleSubmit = () => {
-		const v = text.trim();
-		if (!v) return;
+export function AddRow({ type, onAdd, disabled, placeholder, people = [] }) {
+        const [text, setText] = useState("");
+        const [assigneeUid, setAssigneeUid] = useState("");
+        const handleSubmit = () => {
+                const v = text.trim();
+                if (!v) return;
                 if (type === "projects") onAdd({ name: v, percent: 0 });
-                if (type === "goals") onAdd({ title: v, status: "todo" });
-		setText("");
-	};
-	return (
-		<div className="add-row">
+                if (type === "goals")
+                        onAdd({ title: v, status: "todo", assigneeUid });
+                setText("");
+                setAssigneeUid("");
+        };
+        return (
+                <div className={`add-row ${type === "goals" ? "add-row-goal" : ""}`}>
                         <input
                                 disabled={disabled}
                                 value={text}
@@ -51,9 +54,24 @@ export function AddRow({ type, onAdd, disabled, placeholder }) {
                                 }}
                                 placeholder={placeholder}
                         />
+                        {type === "goals" && (
+                                <select
+                                        className="status-select"
+                                        value={assigneeUid}
+                                        onChange={(e) => setAssigneeUid(e.target.value)}
+                                        disabled={disabled}
+                                >
+                                        <option value="">Unassigned</option>
+                                        {people.map((p) => (
+                                                <option key={p.uid} value={p.uid}>
+                                                        {p.name || p.email}
+                                                </option>
+                                        ))}
+                                </select>
+                        )}
                         <button onClick={handleSubmit} disabled={disabled}>
                                 Add
                         </button>
                 </div>
-	);
+        );
 }

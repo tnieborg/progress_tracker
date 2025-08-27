@@ -193,7 +193,12 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                         return "";
                 }
                 try {
-                        const d = await addDoc(ref, { ...goal, createdAt: serverTimestamp() });
+                        const d = await addDoc(ref, {
+                                ...goal,
+                                assigneeUid: goal.assigneeUid || "",
+                                notes: goal.notes || "",
+                                createdAt: serverTimestamp(),
+                        });
                         return d.id;
                 } catch (err) {
                         setBanner(`Add goal failed: ${err.message}`);
@@ -278,6 +283,7 @@ export default function WorkspacePage({ paletteKey, setPaletteKey, setBanner }) 
                                                 readOnly={goalReadOnly}
                                                 canAdd={canAddGoal}
                                                 canDelete={canDeleteGoal}
+                                                people={people}
                                         />
                                 ) : (
                                         <Card title="Goals">
