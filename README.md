@@ -84,3 +84,13 @@ npm run dev
 ```
 
 The UI includes a "Sign in with Google" button in the header. Sign out is available after logging in. Errors during sign-in or sign-out are shown next to the button.
+
+## Deploy Firestore Rules
+
+Ensure you have the Firebase CLI installed and are logged in (`firebase login`). Then run:
+
+```bash
+npm run deploy:rules
+```
+
+This uses `firebase.json` to deploy `firestore.rules` only.
