@@ -22,6 +22,7 @@ import CreateProfile from "./pages/create-profile";
 import EditProfile from "./pages/edit-profile";
 import LoginPage from "./pages/login";
 import Dashboard from "./pages/dashboard";
+import NotFound from "./pages/not-found";
 import { Card, Button } from "./components/ui/ui";
 import "./App.css";
 
@@ -280,6 +281,17 @@ const isDashboard = location.pathname === "/";
                 }
         };
 
+        function sanitizeBanner(text) {
+                if (!text) return "";
+                let s = String(text);
+                // Remove Unicode replacement chars and normalize common smart quotes
+                s = s.replace(/\uFFFD/g, "");
+                s = s.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+                // Remove stray leading 'o.' or 'O.' from broken emoji
+                s = s.replace(/^[oO]\.[\s]*/, "");
+                return s;
+        }
+
         return (
                 <div className={`app palette-${paletteKey}`}>
                         <div className="container">
@@ -294,7 +306,7 @@ const isDashboard = location.pathname === "/";
                                 showWorkspaceMenu={!isDashboard}
                         />
 
-                                {banner && <div className="banner">{banner}</div>}
+                                {banner && <div className="banner">{sanitizeBanner(banner)}</div>}
 
                                {user && !isDashboard && (
                                        <WorkspaceNav
@@ -333,7 +345,7 @@ const isDashboard = location.pathname === "/";
                                                                }
                                                        />
                                                        <Route path="/profile/edit" element={<EditProfile />} />
-                                                       <Route path="*" element={<div>Select a workspace</div>} />
+                                                       <Route path="*" element={<NotFound />} />
                                                </>
                                        )}
                                </Routes>
