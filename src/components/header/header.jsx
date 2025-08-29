@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PALETTES } from "../../constants/palettes";
 import AuthPanel from "./auth-panel";
@@ -15,6 +15,7 @@ export default function Header({
         createWorkspace,
         showWorkspaceMenu = true,
 }) {
+        const [showPalette, setShowPalette] = useState(false);
         const location = useLocation();
         const isHome = location.pathname === "/";
         const isProfile = location.pathname.startsWith("/profile");
@@ -77,7 +78,7 @@ export default function Header({
                                         <div className="palette-sheet" onClick={(e) => e.stopPropagation()}>
                                                 <div className="palette-sheet-header">
                                                         <span>Choose Theme</span>
-                                                        <button className="palette-sheet-close" onClick={() => setShowPalette(false)} aria-label="Close">×</button>
+                                                        <button className="palette-sheet-close" onClick={() => setShowPalette(false)} aria-label="Close">Ã—</button>
                                                 </div>
                                                 <div className="palette-list">
                                                         {Object.entries(PALETTES).map(([k, v]) => (
@@ -93,3 +94,6 @@ export default function Header({
                 </div>
         );
 }
+
+
+
