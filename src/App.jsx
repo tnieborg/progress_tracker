@@ -15,6 +15,7 @@ import {
         setDoc,
 } from "firebase/firestore";
 import { Link, Routes, Route, useLocation, useNavigate, useMatch } from "react-router-dom";
+import WorkspaceLayout from "./layouts/workspace-layout";
 import { db, auth } from "./firebase";
 import Header from "./components/header/header";
 import WorkspacePage from "./pages/workspace";
@@ -308,18 +309,6 @@ const isWorkspaceRoute = Boolean(useMatch("/workspace/*"));
 
                                 {banner && <div className="banner">{sanitizeBanner(banner)}</div>}
 
-                               {user && isWorkspaceRoute && (
-                                       <WorkspaceNav
-                                               workspaces={workspaces}
-                                               currentWsId={currentWsId}
-                                               currentUser={user}
-                                               createWorkspace={createWorkspace}
-                                               deleteWorkspace={deleteWorkspace}
-                                               resetLocal={resetLocal}
-                                               testConnection={testConnection}
-                                       />
-                               )}
-
                                <Routes>
                                        <Route path="/login" element={<LoginPage />} />
                                        <Route path="/profile/new" element={<CreateProfile />} />
@@ -334,16 +323,25 @@ const isWorkspaceRoute = Boolean(useMatch("/workspace/*"));
                                                                        />
                                                                }
                                                        />
-                                                       <Route
-                                                               path="/workspace/:id"
-                                                               element={
+                                                       <Route path="/workspace/*" element={
+                                                               <WorkspaceLayout
+                                                                       workspaces={workspaces}
+                                                                       currentWsId={currentWsId}
+                                                                       currentUser={user}
+                                                                       createWorkspace={createWorkspace}
+                                                                       deleteWorkspace={deleteWorkspace}
+                                                                       resetLocal={resetLocal}
+                                                                       testConnection={testConnection}
+                                                               />
+                                                       }>
+                                                               <Route path=":id" element={
                                                                        <WorkspacePage
                                                                                paletteKey={paletteKey}
                                                                                setPaletteKey={setPaletteKey}
                                                                                setBanner={setBanner}
                                                                        />
-                                                               }
-                                                       />
+                                                               } />
+                                                       </Route>
                                                        <Route path="/profile/edit" element={<EditProfile />} />
                                                        <Route path="*" element={<NotFound />} />
                                                </>
