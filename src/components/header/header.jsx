@@ -38,7 +38,7 @@ export default function Header({
                                         <button className="btn" onClick={() => setShowPalette((v) => !v)}>
                                                 Theme
                                         </button>
-                                        {isMobile && showPalette && (
+                                        {showPalette && (
                                                 <div className="palette-popover">
                                                         <div className="palette-list">
                                                                 {Object.entries(PALETTES).map(([k, v]) => (
