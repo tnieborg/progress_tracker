@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 import { Card } from "../components/ui/ui";
 
 function WorkspaceNav({
@@ -20,9 +20,9 @@ function WorkspaceNav({
         <div className="workspace-bar">
           {workspaces.length === 0 && <span>No workspaces yet</span>}
           {workspaces.map((w) => (
-            <a key={w.id} href={`/workspace/${w.id}`} className={w.id === currentWsId ? "workspace-link active" : "workspace-link"}>
+            <Link key={w.id} to={`/workspace/${w.id}`} className={w.id === currentWsId ? "workspace-link active" : "workspace-link"}>
               {w.name || "Untitled"}
-            </a>
+            </Link>
           ))}
           <button className="btn btn-subtle" onClick={resetLocal}>Reset local cache</button>
           <button className="btn" onClick={testConnection}>Test connection</button>
@@ -71,4 +71,3 @@ export default function WorkspaceLayout(props) {
     </>
   );
 }
-
