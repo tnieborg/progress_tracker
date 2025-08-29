@@ -150,6 +150,7 @@ transition: transform 0.3s ease;
 .header-icon-btn.active { color: var(--accent); }
 .header-icon-btn:active { transform: translateY(1px); }
 
+.palette-sheet-overlay { display: none; }
 @media (max-width: 768px) {
 	.header { position: fixed; bottom: 0; top: auto; left: 0; right: 0; padding: 8px 16px; border-top: 1px solid var(--accent); border-bottom: none; }
 	.header-title { display: none; }

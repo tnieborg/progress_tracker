@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PALETTES } from "../../constants/palettes";
 import AuthPanel from "./auth-panel";
@@ -18,6 +18,13 @@ export default function Header({
         const [showPalette, setShowPalette] = useState(false);
         const location = useLocation();
         const isHome = location.pathname === "/";
+        const [isMobile, setIsMobile] = useState(false);
+        useEffect(() => {
+                const check = () => setIsMobile(window.innerWidth <= 768);
+                check();
+                window.addEventListener("resize", check);
+                return () => window.removeEventListener("resize", check);
+        }, []);
         const isProfile = location.pathname.startsWith("/profile");
         return (
                 <div className="header">
@@ -31,7 +38,7 @@ export default function Header({
                                         <button className="btn" onClick={() => setShowPalette((v) => !v)}>
                                                 Theme
                                         </button>
-                                        {showPalette && (
+                                        {isMobile && showPalette && (
                                                 <div className="palette-popover">
                                                         <div className="palette-list">
                                                                 {Object.entries(PALETTES).map(([k, v]) => (
@@ -83,12 +90,12 @@ export default function Header({
                                         <span className="header-icon-label">Profile</span>
                                 </Link>
                         </nav>
-                        {showPalette && (
+                        {isMobile && showPalette && (
                                 <div className="palette-sheet-overlay" onClick={() => setShowPalette(false)}>
                                         <div className="palette-sheet" onClick={(e) => e.stopPropagation()}>
                                                 <div className="palette-sheet-header">
                                                         <span>Choose Theme</span>
-                                                        <button className="palette-sheet-close" onClick={() => setShowPalette(false)} aria-label="Close">Ã—</button>
+                                                        <button className="palette-sheet-close" onClick={() => setShowPalette(false)} aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>—</button>
                                                 </div>
                                                 <div className="palette-list">
                                                         {Object.entries(PALETTES).map(([k, v]) => (
@@ -104,6 +111,9 @@ export default function Header({
                 </div>
         );
 }
+
+
+
 
 
 
