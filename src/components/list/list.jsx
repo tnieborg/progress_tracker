@@ -9,7 +9,6 @@ export default function List({
         onAdd,
         onUpdate,
         onDelete,
-        _paletteKey,
         readOnly,
         canAdd = true,
         canDelete = true,
