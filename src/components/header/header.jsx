@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { PALETTES } from "../../constants/palettes";
 import AuthPanel from "./auth-panel";
 import MobileMenu from "./mobile-menu";
@@ -16,7 +17,9 @@ export default function Header({
 }) {
         return (
                 <div className="header">
-                        <h2 className="header-title">Project Tracker</h2>
+                        <h2 className="header-title">
+                                <Link to="/">Project Tracker</Link>
+                        </h2>
                         <div className="header-controls">
 				<AuthPanel user={user} auth={auth} />
                         {showWorkspaceMenu && (
@@ -46,6 +49,23 @@ export default function Header({
                                         createWorkspace={createWorkspace}
                                 />
                         )}
+                        <nav className="header-nav">
+                                <Link className="header-icon-btn" to="/" aria-label="Home">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 10L12 3l8 7v9a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9z" stroke="currentColor" strokeWidth="2" fill="none"/>
+                                        </svg>
+                                </Link>
+                                <Link className="header-icon-btn" to={currentWsId ? `/workspace/${currentWsId}` : "/"} aria-label="Workspace">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" strokeWidth="2"/>
+                                        </svg>
+                                </Link>
+                                <Link className="header-icon-btn" to="/profile/edit" aria-label="Profile">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-5 0-9 2.5-9 5v1h18v-1c0-2.5-4-5-9-5z" stroke="currentColor" strokeWidth="2" fill="none"/>
+                                        </svg>
+                                </Link>
+                        </nav>
                 </div>
         );
 }
