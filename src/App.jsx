@@ -14,7 +14,7 @@ import {
         getDoc,
         setDoc,
 } from "firebase/firestore";
-import { Link, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Link, Routes, Route, useLocation, useNavigate, useMatch } from "react-router-dom";
 import { db, auth } from "./firebase";
 import Header from "./components/header/header";
 import WorkspacePage from "./pages/workspace";
@@ -139,7 +139,7 @@ const currentWsId = location.pathname.startsWith("/workspace/")
         ? location.pathname.split("/")[2]
         : "";
 const isDashboard = location.pathname === "/";
-const isWorkspaceRoute = location.pathname.startsWith("/workspace");
+const isWorkspaceRoute = Boolean(useMatch("/workspace/*"));
 
        useEffect(() => {
                if (
