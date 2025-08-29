@@ -25,11 +25,14 @@
 	background: var(--accent-subtle);
 	color: var(--text);
 	cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease;
 }
 
-.btn-subtle {
-	background: transparent;
-}
+.btn-subtle { background: transparent; }
+
+.btn:hover { background: var(--accent); color: #fff; }
+.btn-subtle:hover { background: var(--accent-subtle); }
+.btn:active { transform: translateY(1px); }
 
 .btn:disabled {
 	cursor: not-allowed;

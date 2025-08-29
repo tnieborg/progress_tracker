@@ -8,10 +8,8 @@
         border-bottom: 1px dashed var(--accent);
 }
 
-.list-row.selected {
-        background: var(--accent-subtle);
-        color: #fff;
-}
+.list-row:hover { background: var(--accent-subtle); }
+.list-row.selected { background: var(--accent-subtle); }
 
 /* Projects and people keep a grid layout */
 .list-row.projects,

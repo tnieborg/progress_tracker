@@ -11,10 +11,8 @@
         border-bottom: 1px dashed var(--accent);
 }
 
-.project-row.selected {
-        background: var(--accent-subtle);
-        color: #fff;
-}
+.project-row:hover { background: var(--accent-subtle); }
+.project-row.selected { background: var(--accent-subtle); }
 
 .project-actions {
         display: flex;
