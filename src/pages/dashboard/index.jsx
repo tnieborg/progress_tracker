@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, Button } from "../../components/ui/ui";
+import "./dashboard.css";
 
 export default function Dashboard({ workspaces, createWorkspace }) {
         const [name, setName] = useState("");
@@ -11,16 +12,17 @@ export default function Dashboard({ workspaces, createWorkspace }) {
                                 <p>Track projects and collaborate across workspaces.</p>
                         </Card>
                         <Card title="Your Workspaces" right={null}>
-                                {workspaces.length === 0 && <p>No workspaces yet.</p>}
-                                <ul>
-                                        {workspaces.map((w) => (
-                                                <li key={w.id}>
-                                                        <Link to={`/workspace/${w.id}`}>
-                                                                {w.name || "Untitled"}
+                                {workspaces.length === 0 ? (
+                                        <div className="empty-state">No workspaces yet. Create your first one below.</div>
+                                ) : (
+                                        <div className="workspaces-grid">
+                                                {workspaces.map((w) => (
+                                                        <Link key={w.id} className="workspace-tile" to={`/workspace/${w.id}`}>
+                                                                <div className="workspace-name">{w.name || "Untitled"}</div>
                                                         </Link>
-                                                </li>
-                                        ))}
-                                </ul>
+                                                ))}
+                                        </div>
+                                )}
                                 <div className="workspace-create">
                                         <input
                                                 className="workspace-bar-input"
