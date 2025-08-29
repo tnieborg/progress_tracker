@@ -19,7 +19,7 @@ export default function MobileMenu({
 				className="mobile-menu-button"
 				onClick={() => setOpen(true)}
 			>
-				☰
+				Menu
 			</button>
 			<div
 				className={`mobile-menu-overlay ${open ? "open" : ""}`}
@@ -33,7 +33,7 @@ export default function MobileMenu({
                                                 className="mobile-menu-close"
                                                 onClick={() => setOpen(false)}
                                         >
-                                                ×
+                                                Close
                                         </button>
                                         {user && (
                                                 <>
