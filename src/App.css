@@ -73,6 +73,11 @@
         }
 }
 
+/* Prevent bottom-fixed header from overlapping content on mobile */
+@media (max-width: 768px) {
+        .container { padding-bottom: 74px; }
+}
+
 .muted {
         opacity: 0.6;
 }

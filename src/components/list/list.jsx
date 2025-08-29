@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Card, AddRow } from "../ui/ui";
 import "./list.css";
 
@@ -124,7 +124,22 @@ export default function List({
                                                                                                 }
                                                                                         }}
                                                                                 >
-                                                                                        {editingId === item.id ? "Close" : "Edit"}
+                                                                                        {editingId === item.id ? (
+                                                                                                "Close"
+                                                                                        ) : (
+                                                                                                <svg
+                                                                                                        width="16"
+                                                                                                        height="16"
+                                                                                                        viewBox="0 0 24 24"
+                                                                                                        fill="none"
+                                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                                        aria-label="Edit"
+                                                                                                        role="img"
+                                                                                                >
+                                                                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="currentColor"/>
+                                                                                                        <path d="M20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/>
+                                                                                                </svg>
+                                                                                        )}
                                                                                 </button>
                                                                         </div>
                                                                 </div>
