@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { PALETTES, Button } from "../ui/ui";
+import { Button } from "../ui/ui";
+import { PALETTES } from "../../constants/palettes";
 
 export default function MobileMenu({
         paletteKey,

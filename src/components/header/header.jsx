@@ -1,5 +1,5 @@
 import React from "react";
-import { PALETTES } from "../ui/ui";
+import { PALETTES } from "../../constants/palettes";
 import AuthPanel from "./auth-panel";
 import MobileMenu from "./mobile-menu";
 import "./header.css";

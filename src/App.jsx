@@ -25,6 +25,14 @@ import Dashboard from "./pages/dashboard";
 import NotFound from "./pages/not-found";
 import { Card, Button } from "./components/ui/ui";
 import "./App.css";
+function sanitizeBanner(text) {
+        if (!text) return "";
+        let s = String(text);
+        s = s.replace(/\uFFFD/g, "");
+        s = s.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+        s = s.replace(/^[oO]\.[\s]*/, "");
+        return s;
+}
 
 function WorkspaceNav({
         workspaces,
@@ -281,16 +289,7 @@ const isDashboard = location.pathname === "/";
                 }
         };
 
-        function sanitizeBanner(text) {
-                if (!text) return "";
-                let s = String(text);
-                // Remove Unicode replacement chars and normalize common smart quotes
-                s = s.replace(/\uFFFD/g, "");
-                s = s.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
-                // Remove stray leading 'o.' or 'O.' from broken emoji
-                s = s.replace(/^[oO]\.[\s]*/, "");
-                return s;
-        }
+        
 
         return (
                 <div className={`app palette-${paletteKey}`}>

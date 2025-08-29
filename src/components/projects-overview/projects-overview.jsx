@@ -12,7 +12,6 @@ export default function ProjectsOverview({
         computeDerivedPercent = () => ({ percent: 0 }),
         selectedId,
         onSelectItem,
-        onUpdate,
 }) {
         const [isMobile, setIsMobile] = useState(false);
 

@@ -22,7 +22,8 @@ import ProjectsOverview from "../../components/projects-overview/projects-overvi
 import PeopleOverview from "../../components/people-overview/people-overview";
 import List from "../../components/list/list";
 import Tabs from "../../components/tabs/tabs";
-import { PALETTES, Card } from "../../components/ui/ui";
+import { Card } from "../../components/ui/ui";
+import { PALETTES } from "../../constants/palettes";
 import PresenceList from "../../components/presence-list/presence-list";
 import "./workspace.css";
 

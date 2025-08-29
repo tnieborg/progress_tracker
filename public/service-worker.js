@@ -43,8 +43,7 @@ self.addEventListener("activate", (event) => {
 
 // Fetch: SPA-friendly routing + caching strategies
 self.addEventListener("fetch", (event) => {
-	const req = event.request;
-	const url = new URL(req.url);
+    const req = event.request;
 
 	// Only handle GET
 	if (req.method !== "GET") return;
