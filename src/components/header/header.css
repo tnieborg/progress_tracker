@@ -23,17 +23,23 @@
 }
 
 .theme-label {
-	opacity: 0.8;
+    opacity: 0.8;
 }
 
 .theme-select {
-	background: var(--card);
-	color: var(--text);
-	border: 1px solid var(--accent);
-	border-radius: 8px;
-	padding: 6px 8px;
-	appearance: none;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 6px 8px;
+    appearance: none;
 }
+.theme-popover-wrap { position: relative; }
+.palette-popover { position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--bg); border: 1px solid var(--accent); border-radius: 12px; padding: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); z-index: 1000; }
+.palette-popover .palette-list { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+.palette-item { display: flex; align-items: center; gap: 8px; border: 1px solid var(--accent); border-radius: 10px; padding: 6px 8px; background: var(--card); color: var(--text); }
+.palette-item.active { outline: 2px solid var(--accent); }
+.palette-color { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); display: inline-block; }
 .theme-select:focus {
 	outline: none;
 	box-shadow: 0 0 0 2px var(--accent-subtle);

@@ -27,20 +27,30 @@ export default function Header({
                         <div className="header-controls">
 				<AuthPanel user={user} auth={auth} />
                         {showWorkspaceMenu && (
-                                <>
-                                        <label className="theme-label">Theme</label>
-                                        <select
-                                                className="theme-select"
-                                                value={paletteKey}
-                                                onChange={(e) => setPaletteKey(e.target.value)}
-                                        >
-                                                {Object.entries(PALETTES).map(([k, v]) => (
-                                                        <option key={k} value={k}>
-                                                                {v.name}
-                                                        </option>
-                                                ))}
-                                        </select>
-                                </>
+                                <div className="theme-popover-wrap">
+                                        <button className="btn" onClick={() => setShowPalette((v) => !v)}>
+                                                Theme
+                                        </button>
+                                        {showPalette && (
+                                                <div className="palette-popover">
+                                                        <div className="palette-list">
+                                                                {Object.entries(PALETTES).map(([k, v]) => (
+                                                                        <button
+                                                                                key={k}
+                                                                                className={`palette-item ${k === paletteKey ? "active" : ""}`}
+                                                                                onClick={() => {
+                                                                                        setPaletteKey(k);
+                                                                                        setShowPalette(false);
+                                                                                }}
+                                                                        >
+                                                                                <span className={`palette-color palette-${k}`} />
+                                                                                <span className="palette-name">{v.name}</span>
+                                                                        </button>
+                                                                ))}
+                                                        </div>
+                                                </div>
+                                        )}
+                                </div>
                         )}
                         </div>
                         {showWorkspaceMenu && (
@@ -94,6 +104,8 @@ export default function Header({
                 </div>
         );
 }
+
+
 
 
 
