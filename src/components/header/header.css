@@ -27,11 +27,16 @@
 }
 
 .theme-select {
-	background: transparent;
+	background: var(--card);
 	color: var(--text);
 	border: 1px solid var(--accent);
 	border-radius: 8px;
-	padding: 4px 6px;
+	padding: 6px 8px;
+	appearance: none;
+}
+.theme-select:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px var(--accent-subtle);
 }
 
 .theme-select option {
