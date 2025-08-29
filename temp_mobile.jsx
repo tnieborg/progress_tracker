@@ -17,10 +17,7 @@ export default function MobileMenu({
 		<div className="mobile-menu-container">
 			<button
 				className="mobile-menu-button"
-				onClick={() => setOpen(true)}
-			>
-				☰
-			</button>
+				onClick={() =>Menu</button>
 			<div
 				className={`mobile-menu-overlay ${open ? "open" : ""}`}
 				onClick={() => setOpen(false)}
@@ -31,10 +28,7 @@ export default function MobileMenu({
 				>
                                         <button
                                                 className="mobile-menu-close"
-                                                onClick={() => setOpen(false)}
-                                        >
-                                                ×
-                                        </button>
+                                                onClick={() =>Close</button>
                                         {user && (
                                                 <>
                                                         <span className="greeting">
@@ -108,3 +102,4 @@ export default function MobileMenu({
                 </div>
         );
 }
+

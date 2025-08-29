@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import {
         collection,
@@ -29,7 +29,7 @@ function sanitizeBanner(text) {
         if (!text) return "";
         let s = String(text);
         s = s.replace(/\uFFFD/g, "");
-        s = s.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+        s = s.replace(/[â€œâ€]/g, '"').replace(/[â€˜â€™]/g, "'");
         s = s.replace(/^[oO]\.[\s]*/, "");
         return s;
 }
@@ -139,6 +139,7 @@ const currentWsId = location.pathname.startsWith("/workspace/")
         ? location.pathname.split("/")[2]
         : "";
 const isDashboard = location.pathname === "/";
+const isWorkspaceRoute = location.pathname.startsWith("/workspace");
 
        useEffect(() => {
                if (
@@ -220,7 +221,7 @@ const isDashboard = location.pathname === "/";
                                 prev.map((w) => (w.id === tempId ? { ...w, id: d.id } : w)),
                         );
                         navigate(`/workspace/${d.id}`);
-                        setBanner(`Created workspace “${name}”.`);
+                        setBanner(`Created workspace "${name}".`);
                         return d.id;
                 } catch (err) {
                         setWorkspaces((prev) => prev.filter((w) => w.id !== tempId));
@@ -272,9 +273,9 @@ const isDashboard = location.pathname === "/";
                         const pingCol = collection(base, "__ping");
                         const added = await addDoc(pingCol, { t: Date.now() });
                         await deleteDoc(doc(pingCol, added.id));
-                        setBanner("✅ Connection OK: rules permit read/write in this workspace.");
+                        setBanner("Connection OK: rules permit read/write in this workspace.");
                 } catch (err) {
-                        setBanner(`❌ Test failed: ${err.message}`);
+                        setBanner(`Test failed: ${err.message}`);
                 }
         }
 
@@ -302,12 +303,12 @@ const isDashboard = location.pathname === "/";
                                 workspaces={workspaces}
                                 currentWsId={currentWsId}
                                 createWorkspace={createWorkspace}
-                                showWorkspaceMenu={!isDashboard}
+                                showWorkspaceMenu={isWorkspaceRoute}
                         />
 
                                 {banner && <div className="banner">{sanitizeBanner(banner)}</div>}
 
-                               {user && !isDashboard && (
+                               {user && isWorkspaceRoute && (
                                        <WorkspaceNav
                                                workspaces={workspaces}
                                                currentWsId={currentWsId}
