@@ -83,7 +83,7 @@ export default function Header({
                                                 <div className="palette-list">
                                                         {Object.entries(PALETTES).map(([k, v]) => (
                                                                 <button key={k} className={`palette-item ${k === paletteKey ? "active" : ""}`} onClick={() => { setPaletteKey(k); setShowPalette(false); }}>
-                                                                        <span className="palette-color" />
+                                                                        <span className={`palette-color palette-${k}`} />
                                                                         <span className="palette-name">{v.name}</span>
                                                                 </button>
                                                         ))}
