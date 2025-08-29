@@ -59,7 +59,7 @@ export default function ProjectsOverview({
                                                 key={item.id}
                                                 className={`project-row ${
                                                         selectedId === item.id ? "selected" : ""
-                                                }`}
+                                                } ${onSelectItem ? "clickable" : ""}`}
                                                 onClick={() => handleRowClick(item.id)}
                                         >
                                                 <span>{item.name}</span>

@@ -11,7 +11,8 @@
         border-bottom: 1px dashed var(--accent);
 }
 
-.project-row:hover { background: var(--accent-subtle); }
+.project-row.clickable { cursor: pointer; }
+.project-row.clickable:hover { background: var(--accent-subtle); }
 .project-row.selected { background: var(--accent-subtle); }
 
 .project-actions {

@@ -50,7 +50,7 @@ export default function List({
                                                 key={item.id}
                                                 className={`list-row ${type} ${
                                                         isGoals && item.status ? `goal-${item.status}` : ""
-                                                } ${selectedId === item.id ? "selected" : ""}`}
+                                                } ${selectedId === item.id ? "selected" : ""} ${onSelectItem ? "clickable" : ""}`}
                                                 onClick={() => onSelectItem && onSelectItem(item.id)}
                                         >
                                                 {isProjects && (
