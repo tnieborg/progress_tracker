@@ -128,13 +128,21 @@ transition: transform 0.3s ease;
 .header-icon-btn {
 	color: var(--text);
 	text-decoration: none;
-	padding: 8px 12px;
+	padding: 6px 10px;
+	display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
 }
+.header-icon-btn svg { display: block; }
+.header-icon-label { font-size: 11px; opacity: 0.9; }
+.header-icon-btn.active { color: var(--accent); }
+.header-icon-btn:active { transform: translateY(1px); }
 
 @media (max-width: 768px) {
 	.header { position: fixed; bottom: 0; top: auto; left: 0; right: 0; padding: 8px 16px; border-top: 1px solid var(--accent); border-bottom: none; }
 	.header-title { display: none; }
 	.header-controls { display: none; }
 	.mobile-menu-container { display: none; }
-	.header-nav { display: flex; gap: 24px; justify-content: center; width: 100%; }
+	.header-nav { display: flex; gap: 24px; justify-content: space-around; width: 100%; padding-bottom: calc(env(safe-area-inset-bottom, 0px) / 2); }
 }
