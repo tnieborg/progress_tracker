@@ -14,7 +14,7 @@ import {
         getDoc,
         setDoc,
 } from "firebase/firestore";
-import { Link, Routes, Route, useLocation, useNavigate, useMatch } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate, useMatch } from "react-router-dom";
 import WorkspaceLayout from "./layouts/workspace-layout";
 import { db, auth } from "./firebase";
 import Header from "./components/header/header";
@@ -24,7 +24,6 @@ import EditProfile from "./pages/edit-profile";
 import LoginPage from "./pages/login";
 import Dashboard from "./pages/dashboard";
 import NotFound from "./pages/not-found";
-import { Card, Button } from "./components/ui/ui";
 import "./App.css";
 function sanitizeBanner(text) {
         if (!text) return "";
@@ -33,76 +32,6 @@ function sanitizeBanner(text) {
         s = s.replace(/[â€œâ€]/g, '"').replace(/[â€˜â€™]/g, "'");
         s = s.replace(/^[oO]\.[\s]*/, "");
         return s;
-}
-
-function WorkspaceNav({
-        workspaces,
-        currentWsId,
-        currentUser,
-        createWorkspace,
-        deleteWorkspace,
-        resetLocal,
-        testConnection,
-}) {
-        const [name, setName] = useState("");
-        const navigate = useNavigate();
-        const current = workspaces.find((w) => w.id === currentWsId);
-        const role = current?.members?.[currentUser?.uid];
-        return (
-                <div className="workspace-nav">
-                        <Card title="Workspaces" right={null}>
-                                <div className="workspace-bar">
-                                        {workspaces.length === 0 && <span>No workspaces yet</span>}
-                                        {workspaces.map((w) => (
-                                                <Link
-                                                        key={w.id}
-                                                        to={`/workspace/${w.id}`}
-                                                        className={w.id === currentWsId ? "workspace-link active" : "workspace-link"}
-                                                >
-                                                        {w.name || "Untitled"}
-                                                </Link>
-                                        ))}
-                                        <Button subtle onClick={resetLocal}>Reset local cache</Button>
-                                        <Button onClick={testConnection}>Test connection</Button>
-                                        <Button
-                                                onClick={() => {
-                                                        if (
-                                                                currentWsId &&
-                                                                window.confirm(
-                                                                        "Delete this workspace? This will remove all data.",
-                                                                )
-                                                        ) {
-                                                                deleteWorkspace(currentWsId);
-                                                        }
-                                                }}
-                                                disabled={!currentWsId || role !== "owner"}
-                                        >
-                                                Delete workspace
-                                        </Button>
-                                </div>
-
-                                <div className="workspace-create">
-                                        <input
-                                                className="workspace-bar-input"
-                                                value={name}
-                                                onChange={(e) => setName(e.target.value)}
-                                                placeholder="New workspace name"
-                                        />
-                                        <Button
-                                                onClick={async () => {
-                                                        const n = name.trim();
-                                                        if (!n) return;
-                                                        const id = await createWorkspace(n);
-                                                        if (id) navigate(`/workspace/${id}`);
-                                                        setName("");
-                                                }}
-                                        >
-                                                Create
-                                        </Button>
-                                </div>
-                        </Card>
-                </div>
-        );
 }
 
 export default function App() {
@@ -139,7 +68,6 @@ const navigate = useNavigate();
 const currentWsId = location.pathname.startsWith("/workspace/")
         ? location.pathname.split("/")[2]
         : "";
-const isDashboard = location.pathname === "/";
 const isWorkspaceRoute = Boolean(useMatch("/workspace/*"));
 
        useEffect(() => {
